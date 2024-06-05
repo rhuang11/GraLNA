@@ -54,3 +54,12 @@ test_precision = precision_score(y_test, y_test_pred)
 print("Best Parameters:", best_params)
 print(f"Test Accuracy: {test_accuracy:.4f}")
 print(f"Test Precision: {test_precision:.4f}")
+
+# Train the best model on the entire dataset
+best_model.fit(X, y)
+
+# Make predictions on the entire dataset
+df['predictions'] = best_model.predict(X)
+
+# Save predictions to a file
+df.to_csv("predictions.csv", index=False)
