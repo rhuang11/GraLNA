@@ -12,13 +12,13 @@ warnings.filterwarnings('ignore')
 
 def data_reader(data_path, year_start, year_end):
     df = pd.read_csv(data_path)
-    df = df[(df['year'] >= year_start) & (df['year'] <= year_end)]
+    df = df[(df['fyear'] >= year_start) & (df['fyear'] <= year_end)]
     data = {
-        'years': df['year'].values,
-        'firms': df['firm'].values,
-        'paaers': df['paaer'].values,
-        'labels': df['label'].values,
-        'features': df.drop(columns=['year', 'firm', 'paaer', 'label']).values
+        'years': df['fyear'].values,
+        'firms': df['gvkey'].values,
+        'paaers': df['p_aaer'].values,
+        'labels': df['misstate'].values,
+        'features': df.drop(columns=['fyear', 'gvkey', 'p_aaer', 'misstate']).values
     }
     print(f"Data Loaded: {data_path}, {data['features'].shape[1]} features, {data['features'].shape[0]} observations.")
     return data
