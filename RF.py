@@ -56,7 +56,7 @@ print(f"Test Accuracy: {test_accuracy:.4f}")
 print(f"Test Precision: {test_precision:.4f}")
 
 # Train the best model on the entire dataset
-best_model.fit(X, y)
+best_model.fit(X_train_sampled, y_train_sampled)  # Use the sampled data for training to avoid overfitting
 
 # Make predictions on the entire dataset
 df['predictions'] = best_model.predict(X)
