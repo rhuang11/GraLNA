@@ -51,10 +51,11 @@ def evaluate(y_true, y_pred, dec_values, topN):
     return results
 
 # Main code to replicate the RUSBoost model
+# Main code to replicate the RUSBoost model
 file_path = '~/GraLNA/data_FraudDetection_JAR2020.csv'
 results = []
 
-for year_test in range(2003):
+for year_test in range(2003, 2015):
     np.random.seed(0)
     print(f"==> Running RUSBoost (training period: 1991-{year_test-2}, testing period: {year_test}, with 2-year gap)...")
 
@@ -74,8 +75,7 @@ for year_test in range(2003):
     y_train[np.isin(paaer_train, paaer_test)] = 0
 
     # Train model
-    rusboost = BalancedRandomForestClassifier(n_estimators=300, base_estimator=DecisionTreeClassifier(min_samples_leaf=5),
-                                              random_state=0)
+    rusboost = BalancedRandomForestClassifier(n_estimators=300, max_depth=5, random_state=0)
     rusboost.fit(X_train, y_train)
 
     # Test model
@@ -95,6 +95,7 @@ for year_test in range(2003):
 # Optionally save the results to a file
 results_df = pd.DataFrame(results, columns=['year_test', 'topN', 'metrics'])
 results_df.to_csv('results_rusboost.csv', index=False)
+
 
 year_valid = 2001
 results_tuning = []
@@ -119,8 +120,7 @@ for iters in [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1500, 2000, 250
     y_train[np.isin(paaer_train, paaer_valid)] = 0
 
     # Train model
-    rusboost = BalancedRandomForestClassifier(n_estimators=iters, base_estimator=DecisionTreeClassifier(min_samples_leaf=5),
-                                              random_state=0)
+    rusboost = BalancedRandomForestClassifier(n_estimators=iters, max_depth=5, random_state=0)
     rusboost.fit(X_train, y_train)
 
     # Validate model
