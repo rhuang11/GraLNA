@@ -36,12 +36,19 @@ def data_reader(data_path, data_type, year_start, year_end):
     print(f'Data Loaded: {data_path}, {data["num_features"]} features, {data["num_obervations"]} observations ({np.sum(data["labels"] == 1)} pos, {np.sum(data["labels"] == 0)} neg)')
     return data
 
+from sklearn.metrics import roc_auc_score, roc_curve
+
 def evaluate(label_true, label_predict, dec_values, topN):
     pos_class = 1
     neg_class = 0
     
     assert len(label_true) == len(label_predict)
     assert len(label_true) == len(dec_values)
+
+    # Check if label_true contains more than two unique classes
+    unique_classes = np.unique(label_true)
+    if len(unique_classes) != 2:
+        raise ValueError("Expected binary classification problem, but found more than two unique classes.")
 
     # calculate AUC
     fpr, tpr, _ = roc_curve(label_true, dec_values, pos_label=pos_class)
@@ -104,6 +111,7 @@ def evaluate(label_true, label_predict, dec_values, topN):
     results['ndcg_at_k'] = ndcg_at_k
 
     return results
+
 
 
 def clean_data(X):
