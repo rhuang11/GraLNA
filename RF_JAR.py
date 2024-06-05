@@ -12,7 +12,7 @@ def data_reader(data_path, data_type, year_start, year_end):
         idx = (data['years'] >= year_start) & (data['years'] <= year_end)
         data['years'] = temp[idx, 0]
         data['firms'] = temp[idx, 1]
-        data['labels'] = temp[idx, 2]
+        data['labels'] = temp[idx, 2].astype(int)
         data['features'] = temp[idx, 3:]
         data['num_obervations'] = data['features'].shape[0]
         data['num_features'] = data['features'].shape[1]
@@ -27,7 +27,7 @@ def data_reader(data_path, data_type, year_start, year_end):
         data['options'] = temp[idx, 5]
         data['paaers'] = temp[idx, 6]
         data['newpaaers'] = temp[idx, 7]
-        data['labels'] = temp[idx, 8]
+        data['labels'] = temp[idx, 8].astype(int)
         data['features'] = temp[idx, 9:37]
         data['num_obervations'] = data['features'].shape[0]
         data['num_features'] = data['features'].shape[1]
@@ -96,12 +96,12 @@ gap = 2
 for year_test in range(2003, 2009):
     np.random.seed(0)
     print(f'Running RandomForest (training period: 1991-{year_test-gap}, testing period: {year_test}, with {gap}-year gap)...')
-    data_train = data_reader('uscecchini28.csv', 'uscecchini28', 1991, year_test-gap)
+    data_train = data_reader('/GraLNA/data_FraudDetection_JAR2020.csv', 'uscecchini28', 1991, year_test-gap)
     y_train = data_train['labels']
     X_train = data_train['features']
     newpaaer_train = data_train['newpaaers']
     
-    data_test = data_reader('uscecchini28.csv', 'uscecchini28', year_test, year_test)
+    data_test = data_reader('/GraLNA/data_FraudDetection_JAR2020.csv', 'uscecchini28', year_test, year_test)
     y_test = data_test['labels']
     X_test = data_test['features']
     newpaaer_test = np.unique(data_test['newpaaers'][data_test['labels'] != 0])
