@@ -2,6 +2,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
+from sklearn.impute import SimpleImputer
 from imblearn.over_sampling import SMOTE
 from imblearn.pipeline import Pipeline
 
@@ -9,12 +10,16 @@ from imblearn.pipeline import Pipeline
 file_path = "~/GraLNA/data_FraudDetection_JAR2020.csv"
 df = pd.read_csv(file_path)
 
-# Prepare the data
+# Handle missing values
 X = df.drop(columns=['misstate', 'fyear', 'p_aaer', 'gvkey'])
 y = df['misstate']
 
+# Impute missing values using median strategy
+imputer = SimpleImputer(strategy='median')
+X_imputed = imputer.fit_transform(X)
+
 # Split the dataset into training and test sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratify=y, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X_imputed, y, test_size=0.2, stratify=y, random_state=42)
 
 # Handle imbalanced data using SMOTE
 smote = SMOTE(random_state=42)
@@ -58,10 +63,10 @@ print("Confusion Matrix:")
 print(conf_matrix)
 
 # Train the best model on the entire dataset
-best_model.fit(X, y)
+best_model.fit(X_imputed, y)
 
 # Make predictions on the entire dataset
-df['predictions'] = best_model.predict(X)
+df['predictions'] = best_model.predict(X_imputed)
 
 # Calculate accuracy on the entire dataset
 full_dataset_accuracy = accuracy_score(y, df['predictions'])
