@@ -80,60 +80,57 @@ def evaluate(label_true, label_predict, dec_values, topN):
 
 # Main loop
 with open("results_rusboost_rf.txt", "w") as f:
-    for year_test in range(2003, 2015):
-        np.random.seed(0)  # Fix random seed for reproducibility
-        print(f'==> Running RUSBoost and RandomForest (training period: 1991-{year_test-2}, testing period: {year_test}, with 2-year gap)...')
-        f.write(f'==> Running RUSBoost and RandomForest (training period: 1991-{year_test-2}, testing period: {year_test}, with 2-year gap)...\n')
-        
-        # Read training data
-        data_train = data_reader('data_FraudDetection_JAR2020.csv', 'data_default', 1991, year_test-2)
-        y_train = data_train['labels']
-        X_train = data_train['features']
-        paaer_train = data_train['paaers']
-        
-        # Read testing data
-        data_test = data_reader('data_FraudDetection_JAR2020.csv', 'data_default', year_test, year_test)
-        y_test = data_test['labels']
-        X_test = data_test['features']
-        paaer_test = np.unique(data_test['paaers'][data_test['labels'] != 0])
-        
-        # Handle serial frauds using PAAER
-        y_train[np.isin(paaer_train, paaer_test)] = 0
-        
-        # Train RUSBoost model
-        t1 = time.time()
-        base_model = DecisionTreeClassifier(min_samples_leaf=5)
-        ada_boost = AdaBoostClassifier(base_model, n_estimators=300, learning_rate=0.1)
-        ada_boost.fit(X_train, y_train)
-        t_train = time.time() - t1
-        
-        # Train Random Forest model
-        t1_rf = time.time()
-        rf = RandomForestClassifier(n_estimators=100, min_samples_leaf=5, random_state=0)
-        rf.fit(X_train, y_train)
-        t_train_rf = time.time() - t1_rf
-        
-        # Test RUSBoost model
-        t2 = time.time()
-        label_predict = ada_boost.predict(X_test)
-        dec_values = ada_boost.decision_function(X_test)
-        t_test = time.time() - t2
-        
-        # Test Random Forest model
-        t2_rf = time.time()
-        label_predict_rf = rf.predict(X_test)
-        dec_values_rf = rf.predict_proba(X_test)[:, 1]
-        t_test_rf = time.time() - t2_rf
-        
-        # Print performance results for RUSBoost
-        print(f'RUSBoost Training time: {t_train:.2f} seconds | Testing time: {t_test:.2f} seconds')
-        f.write(f'RUSBoost Training time: {t_train:.2f} seconds | Testing time: {t_test:.2f} seconds\n')
-        
-        # Print performance results for Random Forest
-        print(f'Random Forest Training time: {t_train_rf:.2f} seconds | Testing time: {t_test_rf:.2f} seconds')
-        f.write(f'Random Forest Training time: {t_train_rf:.2f} seconds | Testing time: {t_test_rf:.2f} seconds\n')
-        
-        for topN in [0.01, 0.02, 0.03, 0.04, 0.05]:
-            metrics = evaluate(y_test, label_predict, dec_values, topN)
-            print(f'RUSBoost Performance (top{int(topN*100)}% as cut-off thresh):')
-            f.write(f'RUSBoost Performance (top{int(topN*100)}% as cut
+    # Read training data
+    data_train = data_reader('data_FraudDetection_JAR2020.csv', 'data_default', 1991, 2001)
+    y_train = data_train['labels']
+    X_train = data_train['features']
+
+    # Read testing data
+    data_test = data_reader('data_FraudDetection_JAR2020.csv', 'data_default', 2003, 2003)
+    y_test = data_test['labels']
+    X_test = data_test['features']
+
+    # Train RUSBoost model
+    t1 = time.time()
+    base_model = DecisionTreeClassifier(min_samples_leaf=5)
+    ada_boost = AdaBoostClassifier(base_model, n_estimators=300, learning_rate=0.1)
+    ada_boost.fit(X_train, y_train)
+    t_train = time.time() - t1
+
+    # Train Random Forest model
+    t1_rf = time.time()
+    rf = RandomForestClassifier(n_estimators=100, min_samples_leaf=5, random_state=0)
+    rf.fit(X_train, y_train)
+    t_train_rf = time.time() - t1_rf
+
+    # Test RUSBoost model
+    t2 = time.time()
+    label_predict = ada_boost.predict(X_test)
+    dec_values = ada_boost.decision_function(X_test)
+    t_test = time.time() - t2
+
+    # Test Random Forest model
+    t2_rf = time.time()
+    label_predict_rf = rf.predict(X_test)
+    dec_values_rf = rf.predict_proba(X_test)[:, 1]
+    t_test_rf = time.time() - t2_rf
+
+    # Print performance results for RUSBoost
+    print(f'RUSBoost Training time: {t_train:.2f} seconds | Testing time: {t_test:.2f} seconds')
+
+    # Print performance results for Random Forest
+    print(f'Random Forest Training time: {t_train_rf:.2f} seconds | Testing time: {t_test_rf:.2f} seconds')
+
+    # Evaluate RUSBoost
+    for topN in [0.01, 0.02, 0.03, 0.04, 0.05]:
+        metrics = evaluate(y_test, label_predict, dec_values, topN)
+        print(f'RUSBoost Performance (top{int(topN*100)}% as cut-off thresh):')
+        for key, value in metrics.items():
+            print(f'{key}: {value:.4f}')
+
+    # Evaluate RandomForest
+    for topN in [0.01, 0.02, 0.03, 0.04, 0.05]:
+        metrics_rf = evaluate(y_test, label_predict_rf, dec_values_rf, topN)
+        print(f'Random Forest Performance (top{int(topN*100)}% as cut-off thresh):')
+        for key, value in metrics_rf.items():
+            print(f'{key}: {value:.4f}')
