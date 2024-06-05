@@ -1,48 +1,69 @@
 import numpy as np
 import pandas as pd
-from sklearn.ensemble import AdaBoostClassifier, RandomForestClassifier
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.metrics import roc_auc_score
-from sklearn.model_selection import train_test_split
-from sklearn.utils import resample
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import roc_auc_score, roc_curve
 import time
 
-# Data Reader Function
 def data_reader(data_path, data_type, year_start, year_end):
-    temp = pd.read_csv(data_path)
+    temp = pd.read_csv(data_path).values
     data = {}
-    if data_type == 'data_default':
-        data['years'] = temp.iloc[:, 0].values
+    if data_type == 'default':
+        data['years'] = temp[:, 0]
         idx = (data['years'] >= year_start) & (data['years'] <= year_end)
-        data['years'] = temp.loc[idx, 'years'].values
-        data['labels'] = temp.loc[idx, 'labels'].astype(int).values
-        data['features'] = temp.loc[idx, 'features'].values
+        data['years'] = temp[idx, 0]
+        data['firms'] = temp[idx, 1]
+        data['labels'] = temp[idx, 2].astype(int)
+        data['features'] = temp[idx, 3:]
+        data['num_obervations'] = data['features'].shape[0]
+        data['num_features'] = data['features'].shape[1]
+    elif data_type == 'uscecchini28':
+        data['years'] = temp[:, 0]
+        idx = (data['years'] >= year_start) & (data['years'] <= year_end)
+        data['years'] = temp[idx, 0]
+        data['firms'] = temp[idx, 1]
+        data['sics'] = temp[idx, 2]
+        data['insbnks'] = temp[idx, 3]
+        data['understatements'] = temp[idx, 4]
+        data['options'] = temp[idx, 5]
+        data['paaers'] = temp[idx, 6]
+        data['newpaaers'] = temp[idx, 7]
+        data['labels'] = temp[idx, 8].astype(int)
+        data['features'] = temp[idx, 9:37]
+        data['num_obervations'] = data['features'].shape[0]
+        data['num_features'] = data['features'].shape[1]
     else:
         print('Error: unsupported data format!')
-    print(f'Data Loaded: {data_path}, {data["features"].shape[1]} features, {len(data["features"])} observations')
+    print(f'Data Loaded: {data_path}, {data["num_features"]} features, {data["num_obervations"]} observations ({np.sum(data["labels"] == 1)} pos, {np.sum(data["labels"] == 0)} neg)')
     return data
-
 
 def evaluate(label_true, label_predict, dec_values, topN):
     pos_class = 1
     neg_class = 0
-    
-    # Calculate AUC
+    assert len(label_true) == len(label_predict)
+    assert len(label_true) == len(dec_values)
+
+    # calculate AUC
+    fpr, tpr, _ = roc_curve(label_true, dec_values, pos_label=pos_class)
     auc = roc_auc_score(label_true, dec_values)
     
-    # Calculate sensitivity, specificity, and BAC
+    results = {
+        'auc': auc,
+        'roc_X': fpr,
+        'roc_Y': tpr
+    }
+    
+    # calculate sensitivity, specificity, and BAC
     tp = np.sum((label_true == pos_class) & (label_predict == pos_class))
     fn = np.sum((label_true == pos_class) & (label_predict == neg_class))
     tn = np.sum((label_true == neg_class) & (label_predict == neg_class))
     fp = np.sum((label_true == neg_class) & (label_predict == pos_class))
     sensitivity = tp / (tp + fn)
     specificity = tn / (tn + fp)
-    bac = (sensitivity + specificity) / 2
-    
-    # Calculate precision
-    precision = tp / (tp + fp)
-    
-    # Calculate metrics using topN% cut-off thresh
+    results['bac'] = (sensitivity + specificity) / 2
+    results['sensitivity'] = sensitivity
+    results['specificity'] = specificity
+
+    # calculate metrics using topN% cut-off thresh
     k = round(len(label_true) * topN)
     idx = np.argsort(dec_values)[::-1]
     label_predict_topk = np.full(len(label_true), neg_class)
@@ -53,29 +74,20 @@ def evaluate(label_true, label_predict, dec_values, topN):
     fp_topk = np.sum((label_true == neg_class) & (label_predict_topk == pos_class))
     sensitivity_topk = tp_topk / (tp_topk + fn_topk)
     specificity_topk = tn_topk / (tn_topk + fp_topk)
-    bac_topk = (sensitivity_topk + specificity_topk) / 2
+    results['bac_topk'] = (sensitivity_topk + specificity_topk) / 2
     precision_topk = tp_topk / (tp_topk + fp_topk)
-    
-    # Calculate NDCG@k
+    results['sensitivity_topk'] = sensitivity_topk
+    results['specificity_topk'] = specificity_topk
+    results['precision_topk'] = precision_topk
+
+    # calculate NDCG@k
     hits = np.sum(label_true == pos_class)
     kz = min(k, hits)
     z = sum((2**1 - 1) / np.log2(1 + i) for i in range(1, kz + 1))
     dcg_at_k = sum((2**1 - 1) / np.log2(1 + i) if label_true[idx[i]] == pos_class else 0 for i in range(k))
     ndcg_at_k = dcg_at_k / z if z != 0 else 0
-    
-    results = {
-        'auc': auc,
-        'sensitivity': sensitivity,
-        'specificity': specificity,
-        'bac': bac,
-        'precision': precision,
-        'sensitivity_topk': sensitivity_topk,
-        'specificity_topk': specificity_topk,
-        'bac_topk': bac_topk,
-        'precision_topk': precision_topk,
-        'ndcg_at_k': ndcg_at_k
-    }
-    
+    results['ndcg_at_k'] = ndcg_at_k
+
     return results
 
 # Main loop
