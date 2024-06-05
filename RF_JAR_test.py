@@ -115,9 +115,24 @@ print(f'Recode {num_frauds} overlapped frauds (i.e., change fraud label from 1 t
 X_train = clean_data(X_train)
 X_test = clean_data(X_test)
 
+# Identify the indices of fraudulent and non-fraudulent samples
+fraud_indices = np.where(y_train == 1)[0]
+non_fraud_indices = np.where(y_train == 0)[0]
+
+# Randomly sample the same number of non-fraudulent indices as fraudulent ones
+sampled_non_fraud_indices = np.random.choice(non_fraud_indices, size=len(fraud_indices), replace=False)
+
+# Combine fraudulent and sampled non-fraudulent indices
+selected_indices = np.concatenate((fraud_indices, sampled_non_fraud_indices))
+
+# Use the selected indices to subset the features and labels for training
+X_train_sampled = X_train[selected_indices]
+y_train_sampled = y_train[selected_indices]
+
+# Train RandomForestClassifier using the sampled data
 t1 = time.time()
 rf = RandomForestClassifier(n_estimators=100, min_samples_leaf=5, random_state=0)
-rf.fit(X_train, y_train)
+rf.fit(X_train_sampled, y_train_sampled)
 t_train = time.time() - t1
 
 t2 = time.time()
