@@ -81,12 +81,12 @@ def evaluate(label_true, label_predict, dec_values, topN):
 # Main loop
 with open("results_rusboost_rf.txt", "w") as f:
     # Read training data
-    data_train = data_reader('data_FraudDetection_JAR2020.csv', 'data_default', 1991, 2001)
+    data_train = data_reader('~/GraLNA/data_FraudDetection_JAR2020.csv', 'data_default', 1991, 2001)
     y_train = data_train['labels']
     X_train = data_train['features']
 
     # Read testing data
-    data_test = data_reader('data_FraudDetection_JAR2020.csv', 'data_default', 2003, 2003)
+    data_test = data_reader('~/GraLNA/data_FraudDetection_JAR2020.csv', 'data_default', 2003, 2003)
     y_test = data_test['labels']
     X_test = data_test['features']
 
