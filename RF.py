@@ -4,8 +4,8 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, precision_score
 
 # Load the dataset
-#file_path = "~/GraLNA/data_FraudDetection_JAR2020.csv"
-file_path = "/Users/ryanhuang/Developer/GraLNA/data_FraudDetection_JAR2020.csv"
+file_path = "~/GraLNA/data_FraudDetection_JAR2020.csv"
+#file_path = "/Users/ryanhuang/Developer/GraLNA/data_FraudDetection_JAR2020.csv"
 df = pd.read_csv(file_path)
 
 # Prepare the data
