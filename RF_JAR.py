@@ -140,7 +140,7 @@ for year_test in range(2003, 2009):
     X_train_sampled, y_train_sampled = sample_non_fraudulent(X_train, y_train, num_frauds)
 
     t1 = time.time()
-    rf = RandomForestClassifier(n_estimators=iters, min_samples_leaf=5, random_state=0)
+    rf = RandomForestClassifier(n_estimators=100, min_samples_leaf=5, random_state=0)
     rf.fit(X_train_sampled, y_train_sampled)
     t_train = time.time() - t1
 
