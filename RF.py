@@ -28,8 +28,8 @@ selected_indices = np.concatenate((fraud_indices, sampled_non_fraud_indices))
 X_train_sampled = X_train.iloc[selected_indices]
 y_train_sampled = y_train.iloc[selected_indices]
 
-# Initialize the Random Forest classifier
-rf_model = RandomForestClassifier(random_state=42)
+# Initialize the Random Forest classifier with balanced class weights
+rf_model = RandomForestClassifier(random_state=42, class_weight='balanced')
 
 # Define the grid of hyperparameters to search
 param_grid = {
