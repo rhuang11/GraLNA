@@ -51,7 +51,7 @@ def evaluate(y_true, y_pred, dec_values, topN):
 file_path = '~/GraLNA/data_FraudDetection_JAR2020.csv'
 results = []
 
-for year_test in range(2003):
+for year_test in range(2003,2015):
     np.random.seed(0)
     print(f"==> Running Random Forest (training period: 1991-{year_test-2}, testing period: {year_test}, with 2-year gap)...")
 
