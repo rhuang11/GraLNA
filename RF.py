@@ -2,6 +2,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, precision_score
+from imblearn.over_sampling import RandomOverSampler
 import numpy as np
 
 # Load the dataset
@@ -27,6 +28,10 @@ selected_indices = np.concatenate((fraud_indices, sampled_non_fraud_indices))
 
 X_train_sampled = X_train.iloc[selected_indices]
 y_train_sampled = y_train.iloc[selected_indices]
+
+# Apply RandomOverSampler to handle class imbalance
+oversample = RandomOverSampler(sampling_strategy='auto', random_state=42)
+X_train_sampled, y_train_sampled = oversample.fit_resample(X_train_sampled, y_train_sampled)
 
 # Initialize the Random Forest classifier with balanced class weights
 rf_model = RandomForestClassifier(random_state=42, class_weight='balanced')
