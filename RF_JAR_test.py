@@ -39,43 +39,50 @@ def data_reader(data_path, data_type, year_start, year_end):
 def evaluate(label_true, label_predict, dec_values, topN):
     pos_class = 1
     neg_class = 0
+    
     assert len(label_true) == len(label_predict)
     assert len(label_true) == len(dec_values)
 
     # calculate AUC
     fpr, tpr, _ = roc_curve(label_true, dec_values, pos_label=pos_class)
     auc = roc_auc_score(label_true, dec_values)
+    optimal_threshold = None  # Optimal threshold not calculated in sklearn
     
     results = {
         'auc': auc,
+        'auc_optimalPT': optimal_threshold,
         'roc_X': fpr,
         'roc_Y': tpr
     }
-    
+
     # calculate sensitivity, specificity, and BAC
-    tp = np.sum((label_true == pos_class) & (label_predict == pos_class))
-    fn = np.sum((label_true == pos_class) & (label_predict == neg_class))
-    tn = np.sum((label_true == neg_class) & (label_predict == neg_class))
-    fp = np.sum((label_true == neg_class) & (label_predict == pos_class))
+    tp = sum((label_true == pos_class) & (label_predict == pos_class))
+    fn = sum((label_true == pos_class) & (label_predict == neg_class))
+    tn = sum((label_true == neg_class) & (label_predict == neg_class))
+    fp = sum((label_true == neg_class) & (label_predict == pos_class))
     sensitivity = tp / (tp + fn)
     specificity = tn / (tn + fp)
-    results['bac'] = (sensitivity + specificity) / 2
+    bac = (sensitivity + specificity) / 2
+
+    results['bac'] = bac
     results['sensitivity'] = sensitivity
     results['specificity'] = specificity
 
-    # calculate metrics using topN% cut-off thresh
+    # calculate precision, sensitivity, specificity, and BAC using topN% cut-off threshold
     k = round(len(label_true) * topN)
     idx = np.argsort(dec_values)[::-1]
     label_predict_topk = np.full(len(label_true), neg_class)
     label_predict_topk[idx[:k]] = pos_class
-    tp_topk = np.sum((label_true == pos_class) & (label_predict_topk == pos_class))
-    fn_topk = np.sum((label_true == pos_class) & (label_predict_topk == neg_class))
-    tn_topk = np.sum((label_true == neg_class) & (label_predict_topk == neg_class))
-    fp_topk = np.sum((label_true == neg_class) & (label_predict_topk == pos_class))
+    tp_topk = sum((label_true == pos_class) & (label_predict_topk == pos_class))
+    fn_topk = sum((label_true == pos_class) & (label_predict_topk == neg_class))
+    tn_topk = sum((label_true == neg_class) & (label_predict_topk == neg_class))
+    fp_topk = sum((label_true == neg_class) & (label_predict_topk == pos_class))
     sensitivity_topk = tp_topk / (tp_topk + fn_topk)
     specificity_topk = tn_topk / (tn_topk + fp_topk)
-    results['bac_topk'] = (sensitivity_topk + specificity_topk) / 2
+    bac_topk = (sensitivity_topk + specificity_topk) / 2
     precision_topk = tp_topk / (tp_topk + fp_topk)
+
+    results['bac_topk'] = bac_topk
     results['sensitivity_topk'] = sensitivity_topk
     results['specificity_topk'] = specificity_topk
     results['precision_topk'] = precision_topk
@@ -83,12 +90,21 @@ def evaluate(label_true, label_predict, dec_values, topN):
     # calculate NDCG@k
     hits = np.sum(label_true == pos_class)
     kz = min(k, hits)
-    z = sum((2**1 - 1) / np.log2(1 + i) for i in range(1, kz + 1))
-    dcg_at_k = sum((2**1 - 1) / np.log2(1 + i) if label_true[idx[i]] == pos_class else 0 for i in range(k))
+    z = 0.0
+    for i in range(1, kz + 1):
+        rel = 1
+        z += (2 ** rel - 1) / np.log2(1 + i)
+    dcg_at_k = 0.0
+    for i in range(k):
+        if label_true[idx[i]] == pos_class:
+            rel = 1
+            dcg_at_k += (2 ** rel - 1) / np.log2(1 + i)
     ndcg_at_k = dcg_at_k / z if z != 0 else 0
+
     results['ndcg_at_k'] = ndcg_at_k
 
     return results
+
 
 def clean_data(X):
     X = np.nan_to_num(X, nan=0.0, posinf=1e9, neginf=-1e9)
