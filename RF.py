@@ -14,8 +14,9 @@ y = df['misstate']
 
 X = X.fillna(df.median())
 
-# Split the dataset into training and testing sets
+# Split the dataset into training, validation, and testing sets
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=0.2, random_state=42)
 
 # Sample non-fraudulent instances equal to the number of fraudulent ones
 fraud_indices = np.where(y_train == 1)[0]
@@ -45,18 +46,30 @@ grid_search.fit(X_train_sampled, y_train_sampled)
 best_params = grid_search.best_params_
 best_model = grid_search.best_estimator_
 
+# Evaluate the best model on the validation set
+y_val_pred = best_model.predict(X_val)
+val_accuracy = accuracy_score(y_val, y_val_pred)
+val_precision = precision_score(y_val, y_val_pred)
+
+# Print Results on validation set
+print("Best Parameters:", best_params)
+print(f"Validation Accuracy: {val_accuracy:.4f}")
+print(f"Validation Precision: {val_precision:.4f}")
+
+# Train the best model on the entire training dataset
+best_model.fit(X_train, y_train)  # Train on the entire training dataset
+
 # Evaluate the best model on the test data
 y_test_pred = best_model.predict(X_test)
 test_accuracy = accuracy_score(y_test, y_test_pred)
 test_precision = precision_score(y_test, y_test_pred)
 
-# Print Results
-print("Best Parameters:", best_params)
+# Print Results on test set
 print(f"Test Accuracy: {test_accuracy:.4f}")
 print(f"Test Precision: {test_precision:.4f}")
 
 # Train the best model on the entire dataset
-best_model.fit(X_train_sampled, y_train_sampled)  # Use the sampled data for training to avoid overfitting
+best_model.fit(X, y)
 
 # Make predictions on the entire dataset
 df['predictions'] = best_model.predict(X)
