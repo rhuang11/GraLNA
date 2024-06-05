@@ -2,6 +2,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, precision_score
+import numpy as np
 
 # Load the dataset
 file_path = "~/GraLNA/data_FraudDetection_JAR2020.csv"
@@ -16,6 +17,16 @@ X = X.fillna(df.median())
 # Split the dataset into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
+# Sample non-fraudulent instances equal to the number of fraudulent ones
+fraud_indices = np.where(y_train == 1)[0]
+non_fraud_indices = np.where(y_train == 0)[0]
+num_frauds = len(fraud_indices)
+sampled_non_fraud_indices = np.random.choice(non_fraud_indices, size=num_frauds, replace=False)
+selected_indices = np.concatenate((fraud_indices, sampled_non_fraud_indices))
+
+X_train_sampled = X_train.iloc[selected_indices]
+y_train_sampled = y_train.iloc[selected_indices]
+
 # Initialize the Random Forest classifier
 rf_model = RandomForestClassifier(random_state=42)
 
@@ -28,7 +39,7 @@ param_grid = {
 
 # Perform Grid Search with 5-fold cross-validation
 grid_search = GridSearchCV(estimator=rf_model, param_grid=param_grid, cv=5, scoring='accuracy', n_jobs=-1)
-grid_search.fit(X_train, y_train)
+grid_search.fit(X_train_sampled, y_train_sampled)
 
 # Get the best parameters and the best model
 best_params = grid_search.best_params_
