@@ -61,5 +61,11 @@ best_model.fit(X, y)
 # Make predictions on the entire dataset
 df['predictions'] = best_model.predict(X)
 
+# Calculate accuracy on the entire dataset
+full_dataset_accuracy = accuracy_score(y, df['predictions'])
+
+# Print accuracy on the entire dataset
+print(f"Accuracy on the entire dataset: {full_dataset_accuracy:.4f}")
+
 # Save predictions to a file
 df.to_csv("predictions.csv", index=False)
