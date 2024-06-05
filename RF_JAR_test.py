@@ -90,3 +90,9 @@ t_test = time.time() - t2
 accuracy = accuracy_score(y_test, label_predict)
 print(f'Accuracy: {accuracy}')
 
+# Create a DataFrame with the results
+results_df = pd.DataFrame({'Actual Labels': y_test, 'Predicted Labels': label_predict, 'Decision Values': dec_values})
+
+# Save the DataFrame to a CSV file
+results_df.to_csv('results.csv', index=False)
+
