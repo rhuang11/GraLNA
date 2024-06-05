@@ -4,7 +4,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, precision_score
 
 # Load the dataset
-file_path = "/Users/ryanhuang/Downloads/data_FraudDetection_JAR2020.csv"
+file_path = "~/GraLNA/data_FraudDetection_JAR2020.csv"
 df = pd.read_csv(file_path)
 
 # Prepare the data
@@ -27,7 +27,7 @@ param_grid = {
 }
 
 # Perform Grid Search with 5-fold cross-validation
-grid_search = GridSearchCV(estimator=rf_model, param_grid=param_grid, cv=5, scoring='precision', n_jobs=-1)
+grid_search = GridSearchCV(estimator=rf_model, param_grid=param_grid, cv=5, scoring='accuracy', n_jobs=-1)
 grid_search.fit(X_train, y_train)
 
 # Get the best parameters and the best model
