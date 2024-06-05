@@ -90,59 +90,56 @@ def evaluate(label_true, label_predict, dec_values, topN):
 
     return results
 
-# Main loop
-with open("results_rusboost_rf.txt", "w") as f:
-    # Read training data
-    data_train = data_reader('~/GraLNA/data_FraudDetection_JAR2020.csv', 'data_default', 1991, 2001)
-    y_train = data_train['labels']
-    X_train = data_train['features']
+def clean_data(X):
+    X = np.nan_to_num(X, nan=0.0, posinf=1e9, neginf=-1e9)
+    return X
 
-    # Read testing data
-    data_test = data_reader('~/GraLNA/data_FraudDetection_JAR2020.csv', 'data_default', 2003, 2003)
-    y_test = data_test['labels']
-    X_test = data_test['features']
+# Read training data
+data_train = data_reader('~/GraLNA/data_FraudDetection_JAR2020.csv', 'uscecchini28', 1991, 2001)
+y_train = data_train['labels']
+X_train = data_train['features']
+newpaaer_train = data_train['newpaaers']
 
-    # Train RUSBoost model
-    t1 = time.time()
-    base_model = DecisionTreeClassifier(min_samples_leaf=5)
-    ada_boost = AdaBoostClassifier(base_model, n_estimators=300, learning_rate=0.1)
-    ada_boost.fit(X_train, y_train)
-    t_train = time.time() - t1
+# Read testing data
+data_test = data_reader('~/GraLNA/data_FraudDetection_JAR2020.csv', 'uscecchini28', 2003, 2003)
+y_test = data_test['labels']
+X_test = data_test['features']
+newpaaer_test = np.unique(data_test['newpaaers'][data_test['labels'] != 0])
 
-    # Train Random Forest model
-    t1_rf = time.time()
-    rf = RandomForestClassifier(n_estimators=100, min_samples_leaf=5, random_state=0)
-    rf.fit(X_train, y_train)
-    t_train_rf = time.time() - t1_rf
+num_frauds = np.sum(y_train == 1)
+y_train[np.isin(newpaaer_train, newpaaer_test)] = 0
+num_frauds -= np.sum(y_train == 1)
+print(f'Recode {num_frauds} overlapped frauds (i.e., change fraud label from 1 to 0).')
 
-    # Test RUSBoost model
-    t2 = time.time()
-    label_predict = ada_boost.predict(X_test)
-    dec_values = ada_boost.decision_function(X_test)
-    t_test = time.time() - t2
+# Clean data
+X_train = clean_data(X_train)
+X_test = clean_data(X_test)
 
-    # Test Random Forest model
-    t2_rf = time.time()
-    label_predict_rf = rf.predict(X_test)
-    dec_values_rf = rf.predict_proba(X_test)[:, 1]
-    t_test_rf = time.time() - t2_rf
+t1 = time.time()
+rf = RandomForestClassifier(n_estimators=iters, min_samples_leaf=5, random_state=0)
+rf.fit(X_train, y_train)
+t_train = time.time() - t1
 
-    # Print performance results for RUSBoost
-    print(f'RUSBoost Training time: {t_train:.2f} seconds | Testing time: {t_test:.2f} seconds')
+t2 = time.time()
+label_predict = rf.predict(X_test)
+dec_values = rf.predict_proba(X_test)[:, 1]
+t_test = time.time() - t2
 
-    # Print performance results for Random Forest
-    print(f'Random Forest Training time: {t_train_rf:.2f} seconds | Testing time: {t_test_rf:.2f} seconds')
+print(f'Training time: {t_train:.2f} seconds | Testing time: {t_test:.2f} seconds')
+metrics = evaluate(y_test, label_predict, dec_values, 0.01)
+print('Performance (top1% as cut-off thresh):')
+print(f'AUC: {metrics["auc"]:.4f}')
+print(f'NCDG@k=top1%: {metrics["ndcg_at_k"]:.4f}')
+print(f'Sensitivity: {metrics["sensitivity_topk"]*100:.2f}%')
+print(f'Precision: {metrics["precision_topk"]*100:.2f}%')
 
-    # Evaluate RUSBoost
-    for topN in [0.01, 0.02, 0.03, 0.04, 0.05]:
-        metrics = evaluate(y_test, label_predict, dec_values, topN)
-        print(f'RUSBoost Performance (top{int(topN*100)}% as cut-off thresh):')
-        for key, value in metrics.items():
-            print(f'{key}: {value:.4f}')
+output_filename = f'prediction_rf28_2003.csv'
+pd.DataFrame({
+    'years': data_test['years'],
+    'firms': data_test['firms'],
+    'newpaaers': data_test['newpaaers'],
+    'y_test': y_test,
+    'label_predict': label_predict,
+    'dec_values': dec_values
+}).to_csv(output_filename, index=False, float_format='%.6f')
 
-    # Evaluate RandomForest
-    for topN in [0.01, 0.02, 0.03, 0.04, 0.05]:
-        metrics_rf = evaluate(y_test, label_predict_rf, dec_values_rf, topN)
-        print(f'Random Forest Performance (top{int(topN*100)}% as cut-off thresh):')
-        for key, value in metrics_rf.items():
-            print(f'{key}: {value:.4f}')
