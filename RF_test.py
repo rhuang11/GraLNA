@@ -1,10 +1,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.tree import DecisionTreeClassifier
-from imblearn.ensemble import BalancedRandomForestClassifier
-from sklearn.metrics import roc_auc_score, roc_curve, precision_score, recall_score
-from sklearn.metrics import ndcg_score
+from sklearn.metrics import roc_auc_score, ndcg_score
 from sklearn.model_selection import train_test_split
 import warnings
 
@@ -51,13 +48,12 @@ def evaluate(y_true, y_pred, dec_values, topN):
     return results
 
 # Main code to replicate the RUSBoost model
-# Main code to replicate the RUSBoost model
 file_path = '~/GraLNA/data_FraudDetection_JAR2020.csv'
 results = []
 
-for year_test in range(2003, 2015):
+for year_test in range(2003):
     np.random.seed(0)
-    print(f"==> Running RUSBoost (training period: 1991-{year_test-2}, testing period: {year_test}, with 2-year gap)...")
+    print(f"==> Running Random Forest (training period: 1991-{year_test-2}, testing period: {year_test}, with 2-year gap)...")
 
     # Read training data
     data_train = data_reader(file_path, 1991, year_test - 2)
@@ -75,12 +71,12 @@ for year_test in range(2003, 2015):
     y_train[np.isin(paaer_train, paaer_test)] = 0
 
     # Train model
-    rusboost = BalancedRandomForestClassifier(n_estimators=300, max_depth=5, random_state=0)
-    rusboost.fit(X_train, y_train)
+    rf = RandomForestClassifier(n_estimators=300, max_depth=5, random_state=0, class_weight='balanced')
+    rf.fit(X_train, y_train)
 
     # Test model
-    label_predict = rusboost.predict(X_test)
-    dec_values = rusboost.predict_proba(X_test)[:, 1]
+    label_predict = rf.predict(X_test)
+    dec_values = rf.predict_proba(X_test)[:, 1]
 
     # Print performance results
     for topN in [0.01, 0.02, 0.03, 0.04, 0.05]:
@@ -94,7 +90,7 @@ for year_test in range(2003, 2015):
 
 # Optionally save the results to a file
 results_df = pd.DataFrame(results, columns=['year_test', 'topN', 'metrics'])
-results_df.to_csv('results_rusboost.csv', index=False)
+results_df.to_csv('results_random_forest.csv', index=False)
 
 
 year_valid = 2001
@@ -102,7 +98,7 @@ results_tuning = []
 
 for iters in [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1500, 2000, 2500, 3000]:
     np.random.seed(0)
-    print(f"==> Validating RUSBoost-iters{iters} (training period: 1991-{year_valid-2}, validating period: {year_valid}, with 2-year gap)...")
+    print(f"==> Validating Random Forest-iters{iters} (training period: 1991-{year_valid-2}, validating period: {year_valid}, with 2-year gap)...")
 
     # Read training data
     data_train = data_reader(file_path, 1991, year_valid - 2)
@@ -120,12 +116,12 @@ for iters in [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1500, 2000, 250
     y_train[np.isin(paaer_train, paaer_valid)] = 0
 
     # Train model
-    rusboost = BalancedRandomForestClassifier(n_estimators=iters, max_depth=5, random_state=0)
-    rusboost.fit(X_train, y_train)
+    rf = RandomForestClassifier(n_estimators=iters, max_depth=5, random_state=0, class_weight='balanced')
+    rf.fit(X_train, y_train)
 
     # Validate model
-    label_predict = rusboost.predict(X_valid)
-    dec_values = rusboost.predict_proba(X_valid)[:, 1]
+    label_predict = rf.predict(X_valid)
+    dec_values = rf.predict_proba(X_valid)[:, 1]
 
     # Print validation results
     metrics = evaluate(y_valid, label_predict, dec_values, 0.01)
@@ -134,4 +130,4 @@ for iters in [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1500, 2000, 250
 
 # Optionally save the tuning results to a file
 tuning_df = pd.DataFrame(results_tuning, columns=['iterations', 'auc'])
-tuning_df.to_csv('tuning_rusboost.csv', index=False)
+tuning_df.to_csv('tuning_random_forest.csv', index=False)
