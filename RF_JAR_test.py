@@ -116,7 +116,7 @@ X_train = clean_data(X_train)
 X_test = clean_data(X_test)
 
 t1 = time.time()
-rf = RandomForestClassifier(n_estimators=iters, min_samples_leaf=5, random_state=0)
+rf = RandomForestClassifier(n_estimators=100, min_samples_leaf=5, random_state=0)
 rf.fit(X_train, y_train)
 t_train = time.time() - t1
 
