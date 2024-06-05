@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import roc_auc_score, ndcg_score, precision_score, recall_score, roc_curve
+from sklearn.metrics import roc_auc_score, roc_curve
 import time
 
 def data_reader(data_path, data_type, year_start, year_end):
@@ -90,18 +90,22 @@ def evaluate(label_true, label_predict, dec_values, topN):
 
     return results
 
+def clean_data(X):
+    X = np.nan_to_num(X, nan=0.0, posinf=1e9, neginf=-1e9)
+    return X
+
 iters = 3000
 gap = 2
 
 for year_test in range(2003, 2009):
     np.random.seed(0)
     print(f'Running RandomForest (training period: 1991-{year_test-gap}, testing period: {year_test}, with {gap}-year gap)...')
-    data_train = data_reader('/GraLNA/data_FraudDetection_JAR2020.csv', 'uscecchini28', 1991, year_test-gap)
+    data_train = data_reader('~/GraLNA/data_FraudDetection_JAR2020.csv', 'uscecchini28', 1991, year_test-gap)
     y_train = data_train['labels']
     X_train = data_train['features']
     newpaaer_train = data_train['newpaaers']
     
-    data_test = data_reader('/GraLNA/data_FraudDetection_JAR2020.csv', 'uscecchini28', year_test, year_test)
+    data_test = data_reader('~/GraLNA/data_FraudDetection_JAR2020.csv', 'uscecchini28', year_test, year_test)
     y_test = data_test['labels']
     X_test = data_test['features']
     newpaaer_test = np.unique(data_test['newpaaers'][data_test['labels'] != 0])
@@ -110,6 +114,10 @@ for year_test in range(2003, 2009):
     y_train[np.isin(newpaaer_train, newpaaer_test)] = 0
     num_frauds -= np.sum(y_train == 1)
     print(f'Recode {num_frauds} overlapped frauds (i.e., change fraud label from 1 to 0).')
+
+    # Clean data
+    X_train = clean_data(X_train)
+    X_test = clean_data(X_test)
 
     t1 = time.time()
     rf = RandomForestClassifier(n_estimators=iters, min_samples_leaf=5, random_state=0)
