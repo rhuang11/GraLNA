@@ -77,8 +77,14 @@ paaer_train = data_train['paaers']
 
 # Handle missing values
 print("Handling missing values in training data...")
-imputer = SimpleImputer(strategy='mean')
+imputer = SimpleImputer(strategy='median')
 X_train = imputer.fit_transform(X_train)
+
+# Check for any remaining NaNs
+if np.isnan(X_train).any():
+    print("Warning: NaNs detected in training data after imputation.")
+    X_train = np.nan_to_num(X_train)
+    print("NaNs replaced with zeros.")
 
 # Create financial ratios
 ratios_train = create_financial_ratios(X_train)
@@ -93,6 +99,12 @@ paaer_valid = np.unique(data_valid['paaers'][data_valid['labels'] != 0])
 # Handle missing values
 print("Handling missing values in validation data...")
 X_valid = imputer.transform(X_valid)
+
+# Check for any remaining NaNs
+if np.isnan(X_valid).any():
+    print("Warning: NaNs detected in validation data after imputation.")
+    X_valid = np.nan_to_num(X_valid)
+    print("NaNs replaced with zeros.")
 
 # Create financial ratios
 ratios_valid = create_financial_ratios(X_valid)
@@ -124,6 +136,12 @@ for year_test in range(2003, 2009):
     # Handle missing values
     print("Handling missing values in testing data...")
     X_test = imputer.transform(X_test)
+
+    # Check for any remaining NaNs
+    if np.isnan(X_test).any():
+        print("Warning: NaNs detected in testing data after imputation.")
+        X_test = np.nan_to_num(X_test)
+        print("NaNs replaced with zeros.")
 
     # Create financial ratios
     ratios_test = create_financial_ratios(X_test)
