@@ -92,11 +92,11 @@ for year_test in range(2003,2015):
 results_df = pd.DataFrame(results, columns=['year_test', 'topN', 'metrics'])
 results_df.to_csv('results_random_forest.csv', index=False)
 
-'''
+
 year_valid = 2001
 results_tuning = []
 
-for iters in [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1500, 2000, 2500, 3000]:
+for iters in [10, 30, 50, 70, 100, 500, 1000, 3000]:
     np.random.seed(0)
     print(f"==> Validating Random Forest-iters{iters} (training period: 1991-{year_valid-2}, validating period: {year_valid}, with 2-year gap)...")
 
@@ -131,4 +131,3 @@ for iters in [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1500, 2000, 250
 # Optionally save the tuning results to a file
 tuning_df = pd.DataFrame(results_tuning, columns=['iterations', 'auc'])
 tuning_df.to_csv('tuning_random_forest.csv', index=False)
-'''
