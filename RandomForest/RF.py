@@ -1,78 +1,155 @@
 import pandas as pd
-from sklearn.model_selection import train_test_split, GridSearchCV
+import numpy as np
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
 from sklearn.impute import SimpleImputer
-from imblearn.over_sampling import SMOTE
-from imblearn.pipeline import Pipeline
+from sklearn.metrics import roc_auc_score, ndcg_score
+from sklearn.model_selection import GridSearchCV
+from itertools import combinations
 
-# Load the dataset
-file_path = "~/GraLNA/data_FraudDetection_JAR2020.csv"
-df = pd.read_csv(file_path)
+def data_reader(data_path, year_start, year_end):
+    df = pd.read_csv(data_path)
+    df = df[(df['fyear'] >= year_start) & (df['fyear'] <= year_end)]
+    data = {
+        'years': df['fyear'].values,
+        'firms': df['gvkey'].values,
+        'paaers': df['p_aaer'].values,
+        'labels': df['misstate'].values,
+        'features': df.drop(columns=['fyear', 'gvkey', 'p_aaer', 'misstate']).values
+    }
+    print(f"Data Loaded: {data_path}, {data['features'].shape[1]} features, {data['features'].shape[0]} observations for years {year_start} to {year_end}.")
+    return data
+
+def create_financial_ratios(X):
+    print("Creating financial ratios...")
+    n = X.shape[1]
+    ratios = []
+    for (i, j) in combinations(range(n), 2):
+        ratio_ij = np.divide(X[:, i], X[:, j], out=np.zeros_like(X[:, i]), where=X[:, j]!=0)
+        ratio_ji = np.divide(X[:, j], X[:, i], out=np.zeros_like(X[:, j]), where=X[:, i]!=0)
+        ratios.append(ratio_ij)
+        ratios.append(ratio_ji)
+    ratios = np.array(ratios).T
+    print("Financial ratios created.")
+    return ratios
+
+def evaluate(y_true, y_pred, dec_values, topN):
+    results = {}
+    results['auc'] = roc_auc_score(y_true, dec_values)
+
+    # Top N% cutoff
+    k = int(len(y_true) * topN)
+    top_k_idx = np.argsort(dec_values)[-k:]
+    y_pred_topk = np.zeros_like(y_true)
+    y_pred_topk[top_k_idx] = 1
+
+    tp_topk = np.sum((y_true == 1) & (y_pred_topk == 1))
+    fn_topk = np.sum((y_true == 1) & (y_pred_topk == 0))
+    fp_topk = np.sum((y_true == 0) & (y_pred_topk == 1))
+    tn_topk = np.sum((y_true == 0) & (y_pred_topk == 0))
+
+    sensitivity_topk = tp_topk / (tp_topk + fn_topk) if (tp_topk + fn_topk) > 0 else 0
+    precision_topk = tp_topk / (tp_topk + fp_topk) if (tp_topk + fp_topk) > 0 else 0
+
+    results['sensitivity_topk'] = sensitivity_topk
+    results['precision_topk'] = precision_topk
+
+    # NDCG@k
+    ndcg_at_k = ndcg_score([y_true], [dec_values], k=k)
+    results['ndcg_at_k'] = ndcg_at_k
+
+    return results
+
+# Main code
+file_path = '~/GraLNA/data_FraudDetection_JAR2020.csv'
+results = []
+
+# Initial training and validation period
+training_period_start = 1991
+validation_period_end = 2001
+validation_period_start = 2000
+
+print("Reading training data...")
+data_train = data_reader(file_path, training_period_start, validation_period_end)
+X_train = data_train['features']
+y_train = data_train['labels']
+paaer_train = data_train['paaers']
 
 # Handle missing values
-X = df.drop(columns=['misstate', 'fyear', 'p_aaer', 'gvkey'])
-y = df['misstate']
+print("Handling missing values in training data...")
+imputer = SimpleImputer(strategy='mean')
+X_train = imputer.fit_transform(X_train)
 
-# Impute missing values using median strategy
-imputer = SimpleImputer(strategy='median')
-X_imputed = imputer.fit_transform(X)
+# Ensure no NaN values
+if np.isnan(X_train).any():
+    print("Warning: NaNs detected in training data after imputation.")
+    X_train = np.nan_to_num(X_train)
+    print("NaNs replaced with zeros.")
 
-# Split the dataset into training and test sets
-X_train, X_test, y_train, y_test = train_test_split(X_imputed, y, test_size=0.2, stratify=y, random_state=42)
+# Create financial ratios
+ratios_train = create_financial_ratios(X_train)
 
-# Handle imbalanced data using SMOTE
-smote = SMOTE(random_state=42)
-rf_model = RandomForestClassifier(random_state=42)
+# Handle NaNs in financial ratios
+ratios_train[np.isnan(ratios_train)] = 0
 
-# Define the pipeline
-pipeline = Pipeline([('smote', smote), ('rf', rf_model)])
+X_train = np.hstack((X_train, ratios_train))
 
-# Define the grid of hyperparameters to search
-param_grid = {
-    'rf__n_estimators': [50, 100, 150],
-    'rf__max_depth': [None, 5, 10, 15],
-    'rf__max_features': [3, 5, 7]
-}
+# Grid search for optimal parameters using validation set
+print("Performing grid search for optimal parameters...")
+param_grid = {'n_estimators': [100, 200, 300], 'max_depth': [None, 5, 10]}
+rf_classifier = RandomForestClassifier(class_weight='balanced', random_state=0)
+clf = GridSearchCV(rf_classifier, param_grid, scoring='roc_auc', cv=5)
+clf.fit(X_train, y_train)
+best_params = clf.best_params_
+print(f"Optimal parameters found: {best_params}")
 
-# Perform Grid Search with 5-fold cross-validation
-grid_search = GridSearchCV(estimator=pipeline, param_grid=param_grid, cv=5, scoring='accuracy', n_jobs=-1)
-grid_search.fit(X_train, y_train)
+# Train model with best parameters on the full training set
+print("Training final Random Forest model with optimal parameters...")
+rf_classifier = RandomForestClassifier(class_weight='balanced', random_state=0, **best_params)
+rf_classifier.fit(X_train, y_train)
 
-# Get the best parameters and the best model
-best_params = grid_search.best_params_
-best_model = grid_search.best_estimator_
+for year_test in range(2003, 2009):
+    print(f"==> Testing Random Forest (training period: 1991-{year_test-2}, testing period: {year_test}, with 2-year gap)...")
 
-# Evaluate the best model on the test data
-y_test_pred = best_model.predict(X_test)
-test_accuracy = accuracy_score(y_test, y_test_pred)
-test_precision = precision_score(y_test, y_test_pred)
-test_recall = recall_score(y_test, y_test_pred)
-test_f1_score = f1_score(y_test, y_test_pred)
+    # Read testing data
+    print(f"Reading testing data for year {year_test}...")
+    data_test = data_reader(file_path, year_test, year_test)
+    X_test = data_test['features']
+    y_test = data_test['labels']
 
-# Calculate confusion matrix
-conf_matrix = confusion_matrix(y_test, y_test_pred)
+    # Handle missing values
+    print("Handling missing values in testing data...")
+    X_test = imputer.transform(X_test)
 
-# Print Results
-print("Best Parameters:", best_params)
-print(f"Test Accuracy: {test_accuracy:.4f}")
-print(f"Test Precision: {test_precision:.4f}")
-print(f"Test Recall: {test_recall:.4f}")
-print(f"Test F1 Score: {test_f1_score:.4f}")
-print("Confusion Matrix:")
-print(conf_matrix)
+    # Ensure no NaN values
+    if np.isnan(X_test).any():
+        print("Warning: NaNs detected in testing data after imputation.")
+        X_test = np.nan_to_num(X_test)
+        print("NaNs replaced with zeros.")
 
-# Train the best model on the entire dataset
-best_model.fit(X_imputed, y)
+    # Create financial ratios
+    ratios_test = create_financial_ratios(X_test)
 
-# Make predictions on the entire dataset
-df['predictions'] = best_model.predict(X_imputed)
+    # Handle NaNs in financial ratios
+    ratios_test[np.isnan(ratios_test)] = 0
 
-# Calculate accuracy on the entire dataset
-full_dataset_accuracy = accuracy_score(y, df['predictions'])
+    X_test = np.hstack((X_test, ratios_test))
 
-# Print accuracy on the entire dataset
-print(f"Accuracy on the entire dataset: {full_dataset_accuracy:.4f}")
+    # Test model
+    print("Making predictions with the Random Forest model...")
+    label_predict = rf_classifier.predict(X_test)
+    dec_values = rf_classifier.predict_proba(X_test)[:, 1]
 
-# Save predictions to a file
-df.to_csv("predictions.csv", index=False)
+    # Print performance results
+    for topN in [0.01, 0.02, 0.03, 0.04, 0.05]:
+        metrics = evaluate(y_test, label_predict, dec_values, topN)
+        print(f"Performance (top {topN*100:.0f}% as cut-off thresh):")
+        print(f"AUC: {metrics['auc']:.4f}")
+        print(f"NDCG@k: {metrics['ndcg_at_k']:.4f}")
+        print(f"Sensitivity: {metrics['sensitivity_topk']*100:.2f}%")
+        print(f"Precision: {metrics['precision_topk']*100:.2f}%")
+        results.append((year_test, topN, metrics))
+
+print("Saving results to a CSV file...")
+results_df = pd.DataFrame(results, columns=['year_test', 'topN', 'metrics'])
+results_df.to_csv('results_rf_fr.csv', index=False)
+print("Results saved.")
