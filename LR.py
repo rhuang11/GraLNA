@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+from sklearnex import patch_sklearn
+patch_sklearn()
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score, ndcg_score
 from sklearn.model_selection import train_test_split
