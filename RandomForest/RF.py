@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+from sklearnex import patch_sklearn
+patch_sklearn()
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.impute import SimpleImputer
 from sklearn.metrics import roc_auc_score, ndcg_score
