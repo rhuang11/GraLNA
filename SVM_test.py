@@ -77,10 +77,10 @@ paaer_train = data_train['paaers']
 
 # Handle missing values
 print("Handling missing values in training data...")
-imputer = SimpleImputer(strategy='median')
+imputer = SimpleImputer(strategy='mean')
 X_train = imputer.fit_transform(X_train)
 
-# Check for any remaining NaNs
+# Ensure no NaN values
 if np.isnan(X_train).any():
     print("Warning: NaNs detected in training data after imputation.")
     X_train = np.nan_to_num(X_train)
@@ -100,7 +100,7 @@ paaer_valid = np.unique(data_valid['paaers'][data_valid['labels'] != 0])
 print("Handling missing values in validation data...")
 X_valid = imputer.transform(X_valid)
 
-# Check for any remaining NaNs
+# Ensure no NaN values
 if np.isnan(X_valid).any():
     print("Warning: NaNs detected in validation data after imputation.")
     X_valid = np.nan_to_num(X_valid)
@@ -137,7 +137,7 @@ for year_test in range(2003, 2009):
     print("Handling missing values in testing data...")
     X_test = imputer.transform(X_test)
 
-    # Check for any remaining NaNs
+    # Ensure no NaN values
     if np.isnan(X_test).any():
         print("Warning: NaNs detected in testing data after imputation.")
         X_test = np.nan_to_num(X_test)
