@@ -1,8 +1,8 @@
 import pandas as pd
 import numpy as np
 from sklearn.svm import SVC
+from sklearn.impute import SimpleImputer
 from sklearn.metrics import roc_auc_score, ndcg_score
-from sklearn.model_selection import train_test_split
 import warnings
 
 warnings.filterwarnings('ignore')
@@ -70,6 +70,11 @@ for year_test in range(2003, 2015):
     # Handle serial frauds using PAAER
     y_train[np.isin(paaer_train, paaer_test)] = 0
 
+    # Impute missing values
+    imputer = SimpleImputer(strategy='mean')
+    X_train = imputer.fit_transform(X_train)
+    X_test = imputer.transform(X_test)
+
     # Train model
     svm = SVC(probability=True, random_state=0, class_weight='balanced')
     svm.fit(X_train, y_train)
@@ -114,6 +119,10 @@ for C in [0.01, 0.1, 1, 10, 100]:
 
     # Handle serial frauds using PAAER
     y_train[np.isin(paaer_train, paaer_valid)] = 0
+
+    # Impute missing values
+    X_train = imputer.fit_transform(X_train)
+    X_valid = imputer.transform(X_valid)
 
     # Train model
     svm = SVC(C=C, probability=True, random_state=0, class_weight='balanced')
