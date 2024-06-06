@@ -4,6 +4,7 @@ from sklearnex import patch_sklearn
 patch_sklearn()
 from sklearn.linear_model import LogisticRegression
 from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import roc_auc_score, ndcg_score
 from sklearn.model_selection import GridSearchCV
 from itertools import combinations
@@ -95,19 +96,23 @@ ratios_train[np.isnan(ratios_train)] = 0
 
 X_train = np.hstack((X_train, ratios_train))
 
+# Scale the data
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+
 # Grid search for optimal parameters using validation set
 print("Performing grid search for optimal parameters...")
 param_grid = {'C': [0.1, 1, 10], 'max_iter': [100, 200, 300]}
-logreg_classifier = LogisticRegression(class_weight='balanced', random_state=0)
-clf = GridSearchCV(logreg_classifier, param_grid, scoring='roc_auc', cv=5)
+lr_classifier = LogisticRegression(class_weight='balanced', random_state=0, solver='lbfgs')
+clf = GridSearchCV(lr_classifier, param_grid, scoring='roc_auc', cv=5)
 clf.fit(X_train, y_train)
 best_params = clf.best_params_
 print(f"Optimal parameters found: {best_params}")
 
 # Train model with best parameters on the full training set
 print("Training final Logistic Regression model with optimal parameters...")
-logreg_classifier = LogisticRegression(class_weight='balanced', random_state=0, **best_params)
-logreg_classifier.fit(X_train, y_train)
+lr_classifier = LogisticRegression(class_weight='balanced', random_state=0, solver='lbfgs', **best_params)
+lr_classifier.fit(X_train, y_train)
 
 for year_test in range(2003, 2009):
     print(f"==> Testing Logistic Regression (training period: 1991-{year_test-2}, testing period: {year_test}, with 2-year gap)...")
@@ -136,10 +141,13 @@ for year_test in range(2003, 2009):
 
     X_test = np.hstack((X_test, ratios_test))
 
+    # Scale the test data
+    X_test = scaler.transform(X_test)
+
     # Test model
     print("Making predictions with the Logistic Regression model...")
-    label_predict = logreg_classifier.predict(X_test)
-    dec_values = logreg_classifier.predict_proba(X_test)[:, 1]
+    label_predict = lr_classifier.predict(X_test)
+    dec_values = lr_classifier.predict_proba(X_test)[:, 1]
 
     # Print performance results
     for topN in [0.01, 0.02, 0.03, 0.04, 0.05]:
@@ -153,5 +161,5 @@ for year_test in range(2003, 2009):
 
 print("Saving results to a CSV file...")
 results_df = pd.DataFrame(results, columns=['year_test', 'topN', 'metrics'])
-results_df.to_csv('results_logreg_fr.csv', index=False)
+results_df.to_csv('results_lr_fr.csv', index=False)
 print("Results saved.")
