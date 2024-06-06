@@ -5,7 +5,6 @@ from sklearn.impute import SimpleImputer
 from sklearn.metrics import roc_auc_score, ndcg_score
 from sklearn.model_selection import GridSearchCV, train_test_split
 import warnings
-from itertools import combinations
 
 warnings.filterwarnings('ignore')
 
@@ -21,17 +20,6 @@ def data_reader(data_path, year_start, year_end):
     }
     print(f"Data Loaded: {data_path}, {data['features'].shape[1]} features, {data['features'].shape[0]} observations for years {year_start} to {year_end}.")
     return data
-
-def create_financial_ratios(X):
-    print("Creating financial ratios...")
-    n = X.shape[1]
-    ratios = []
-    for (i, j) in combinations(range(n), 2):
-        ratios.append(X[:, i] / X[:, j])
-        ratios.append(X[:, j] / X[:, i])
-    ratios = np.array(ratios).T
-    print("Financial ratios created.")
-    return ratios
 
 def evaluate(y_true, y_pred, dec_values, topN):
     results = {}
@@ -60,7 +48,7 @@ def evaluate(y_true, y_pred, dec_values, topN):
 
     return results
 
-# Main code to replicate the SVM-FK model
+# Main code to replicate the SVM model
 file_path = '~/GraLNA/data_FraudDetection_JAR2020.csv'
 results = []
 
@@ -77,7 +65,7 @@ paaer_train = data_train['paaers']
 
 # Handle missing values
 print("Handling missing values in training data...")
-imputer = SimpleImputer(strategy='mean')
+imputer = SimpleImputer(strategy='median')
 X_train = imputer.fit_transform(X_train)
 
 # Ensure no NaN values
@@ -85,10 +73,6 @@ if np.isnan(X_train).any():
     print("Warning: NaNs detected in training data after imputation.")
     X_train = np.nan_to_num(X_train)
     print("NaNs replaced with zeros.")
-
-# Create financial ratios
-ratios_train = create_financial_ratios(X_train)
-X_train = np.hstack((X_train, ratios_train))
 
 print("Reading validation data...")
 data_valid = data_reader(file_path, validation_period_start, validation_period_end)
@@ -106,10 +90,6 @@ if np.isnan(X_valid).any():
     X_valid = np.nan_to_num(X_valid)
     print("NaNs replaced with zeros.")
 
-# Create financial ratios
-ratios_valid = create_financial_ratios(X_valid)
-X_valid = np.hstack((X_valid, ratios_valid))
-
 # Grid search for optimal C+ and C- parameters using validation set
 print("Performing grid search for optimal C parameter...")
 param_grid = {'C': [0.01, 0.1, 1, 10, 20]}
@@ -125,7 +105,7 @@ svc = SVC(C=best_C, probability=True, random_state=0, class_weight='balanced')
 svc.fit(X_train, y_train)
 
 for year_test in range(2003, 2009):
-    print(f"==> Testing SVM-FK (training period: 1991-{year_test-2}, testing period: {year_test}, with 2-year gap)...")
+    print(f"==> Testing SVM (training period: 1991-{year_test-2}, testing period: {year_test}, with 2-year gap)...")
 
     # Read testing data
     print(f"Reading testing data for year {year_test}...")
@@ -142,10 +122,6 @@ for year_test in range(2003, 2009):
         print("Warning: NaNs detected in testing data after imputation.")
         X_test = np.nan_to_num(X_test)
         print("NaNs replaced with zeros.")
-
-    # Create financial ratios
-    ratios_test = create_financial_ratios(X_test)
-    X_test = np.hstack((X_test, ratios_test))
 
     # Test model
     print("Making predictions with the SVM model...")
@@ -164,5 +140,5 @@ for year_test in range(2003, 2009):
 
 print("Saving results to a CSV file...")
 results_df = pd.DataFrame(results, columns=['year_test', 'topN', 'metrics'])
-results_df.to_csv('results_svm_fk.csv', index=False)
+results_df.to_csv('results_svm.csv', index=False)
 print("Results saved.")
