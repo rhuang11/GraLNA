@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from sklearnex import patch_sklearn, patch_sklelarn()
 from sklearn.svm import SVC
 from sklearn.impute import SimpleImputer
 from sklearn.metrics import roc_auc_score, ndcg_score
