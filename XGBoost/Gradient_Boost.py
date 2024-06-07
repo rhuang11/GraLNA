@@ -1,8 +1,11 @@
 import warnings
+from sklearnex import patch_sklearn
+patch_sklearn()
 warnings.filterwarnings('ignore')
 import pandas as pd
 import numpy as np
 np.random.seed(0)
+from sklearn.impute import SimpleImputer
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.preprocessing import StandardScaler
@@ -25,6 +28,10 @@ scaled_df.head()
 
 X_train, X_test, y_train, y_test = train_test_split(scaled_df, target, test_size=0.25)
 
+print("Handling missing values in training data...")
+imputer = SimpleImputer(strategy='median')
+X_train = imputer.fit_transform(X_train)
+
 adaboost_clf = AdaBoostClassifier()
 gbt_clf = GradientBoostingClassifier(learning_rate=0.1, max_depth=10,
                                     max_features=0.35000000000000003, min_samples_leaf=10, min_samples_split=5,
@@ -32,7 +39,9 @@ gbt_clf = GradientBoostingClassifier(learning_rate=0.1, max_depth=10,
 
 adaboost_clf.fit(X_train, y_train)
 
-gbt_clf.fit(X_train.as_matrix(), y_train.as_matrix())
+gbt_clf.fit(X_train, y_train)
+
+#gbt_clf.fit(np.asmatrix(X_train), np.asmatrix(y_train))
 
 adaboost_train_preds = adaboost_clf.predict(X_train)
 adaboost_test_preds = adaboost_clf.predict(X_test)
