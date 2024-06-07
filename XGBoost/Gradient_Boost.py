@@ -4,7 +4,6 @@ import pandas as pd
 import numpy as np
 np.random.seed(0)
 import matplotlib.pyplot as plt
-%matplotlib inline
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import AdaBoostClassifier, GradientBoostingClassifier
