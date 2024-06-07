@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 Traceback (most recent call last):
   File "/Users/ryanhuang/Developer/GraLNA/XGBoost/XGBoost.py", line 3, in <module>
     from sklearnex import patch_sklearn
 ModuleNotFoundError: No module named 'sklearnex'
+=======
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+Intel(R) Extension for Scikit-learn* enabled (https://github.com/intel/scikit-learn-intelex)
+>>>>>>> 45b8abe2c564436dd65f07fd5fe071adfa95ff44
