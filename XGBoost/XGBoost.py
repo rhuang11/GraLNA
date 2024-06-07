@@ -98,9 +98,9 @@ X_train = np.hstack((X_train, ratios_train))
 # Grid search for optimal parameters using validation set
 print("Performing grid search for optimal parameters...")
 param_grid = {
-    'n_estimators': [100],
-    'max_depth': [5],
-    'learning_rate': [0.01]
+    'n_estimators': [100, 200, 300],
+    'max_depth': [5, 10, 15],
+    'learning_rate': [0.01, 0.1, 0.2]
 }
 xgb_classifier = xgb.XGBClassifier(scale_pos_weight=1, random_state=0, use_label_encoder=False, eval_metric='logloss')
 clf = GridSearchCV(xgb_classifier, param_grid, scoring='roc_auc', cv=5)
