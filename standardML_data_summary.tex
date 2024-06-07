@@ -1,0 +1,14 @@
+\documentclass[11pt]{report}
+
+\begin{document}
+\begin{table}[]
+\begin{tabular}{lllllll}
+Input Variables                                                                           &  & Method                                                        & AUC                                                   & NDCG@1                                                & Sensitivity                                              & Precision                                                \\ \hline
+\begin{tabular}[c]{@{}l@{}}14 financial ratios\\ 28 raw financial data items\end{tabular} &  & \begin{tabular}[c]{@{}l@{}}Random Forest\\ RF-FR\end{tabular} & \begin{tabular}[c]{@{}l@{}}0.752\\ 0.812\end{tabular} & \begin{tabular}[c]{@{}l@{}}0.037\\ 0.165\end{tabular} & \begin{tabular}[c]{@{}l@{}}4.35\%\\ 13.04\%\end{tabular} & \begin{tabular}[c]{@{}l@{}}5.08\%\\ 15.25\%\end{tabular} \\ \cline{3-7} 
+                                                                                          &  & \begin{tabular}[c]{@{}l@{}}SVM\\ SVM-FK\end{tabular}          & \begin{tabular}[c]{@{}l@{}}0.749\\ 0.566\end{tabular} & \begin{tabular}[c]{@{}l@{}}0\\ 0.039\end{tabular}     & \begin{tabular}[c]{@{}l@{}}0\\ 4.35\%\end{tabular}       & \begin{tabular}[c]{@{}l@{}}0\\ 5.08\%\end{tabular}       \\ \cline{3-7} 
+                                                                                          &  & Logit                                                         & 0.5                                                   & 0.012                                                 & 0                                                        & 0                                                        \\ \cline{3-7} 
+                                                                                          &  & XGBoost                                                       & 0.726                                                 & 0.218                                                 & 11.59\%                                                  & 13.56\%                                                  \\ \hline
+\end{tabular}
+\end{table}
+
+\end{document}
