@@ -98,9 +98,9 @@ X_train = np.hstack((X_train, ratios_train))
 # Grid search for optimal parameters using validation set
 print("Performing grid search for optimal parameters...")
 param_grid = {
-    'n_estimators': [100, 200, 300],
-    'max_depth': [5, 10, 15],
-    'learning_rate': [0.01, 0.1, 0.2]
+    'n_estimators': [200],
+    'max_depth': [10],
+    'learning_rate': [0.1]
 }
 xgb_classifier = xgb.XGBClassifier(scale_pos_weight=1, random_state=0, use_label_encoder=False, eval_metric='logloss')
 clf = GridSearchCV(xgb_classifier, param_grid, scoring='roc_auc', cv=5)
@@ -157,5 +157,5 @@ for year_test in range(2003, 2009):
 
 print("Saving results to a CSV file...")
 results_df = pd.DataFrame(results, columns=['year_test', 'topN', 'metrics'])
-results_df.to_csv('results_xgboost_fr.csv', index=False)
+results_df.to_csv('results_xgboost_2001001.csv', index=False)
 print("Results saved.")
