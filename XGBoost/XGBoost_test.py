@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 import xgboost as xgb
-from sklearn.model_selection import train_test_split
 from sklearn.metrics import roc_auc_score, ndcg_score
 
 def data_reader(data_path, year_start, year_end):
@@ -12,7 +11,7 @@ def data_reader(data_path, year_start, year_end):
     data = data[(data['fyear'] >= year_start) & (data['fyear'] <= year_end)]
 
     # Separate features and labels
-    X = data.iloc[:, 4]  # Assuming features start from column index 4
+    X = data.iloc[:, 4:]  # Assuming features start from column index 4
     y = data['misstate']
 
     return X, y
@@ -20,6 +19,9 @@ def data_reader(data_path, year_start, year_end):
 # Set parameters
 start_year = 1991
 end_year = 2014
+
+# Create an empty DataFrame to store results
+results_df = pd.DataFrame(columns=['Year_Test', 'AUC', 'NDCG@1%', 'NDCG@2%', 'NDCG@3%', 'NDCG@4%', 'NDCG@5%'])
 
 # Loop through each testing year
 for year_test in range(2003, 2015):
@@ -42,11 +44,23 @@ for year_test in range(2003, 2015):
 
     # Calculate AUC
     auc = roc_auc_score(y_test, y_pred_proba)
-    print("AUC:", auc)
 
     # Calculate NDCG@k
     k_values = [0.01, 0.02, 0.03, 0.04, 0.05]
+    ndcg_scores = []
     for k in k_values:
         k_top = int(len(y_test) * k)
         ndcg = ndcg_score([y_test], [y_pred_proba], k=k_top)
-        print(f"NDCG@{k * 100}%:", ndcg)
+        ndcg_scores.append(ndcg)
+
+    # Store results in DataFrame
+    results_df = results_df.append({'Year_Test': year_test,
+                                    'AUC': auc,
+                                    'NDCG@1%': ndcg_scores[0],
+                                    'NDCG@2%': ndcg_scores[1],
+                                    'NDCG@3%': ndcg_scores[2],
+                                    'NDCG@4%': ndcg_scores[3],
+                                    'NDCG@5%': ndcg_scores[4]}, ignore_index=True)
+
+# Write results to CSV
+results_df.to_csv('results.csv', index=False)
