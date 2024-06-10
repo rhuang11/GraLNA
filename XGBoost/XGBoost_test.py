@@ -9,7 +9,7 @@ def data_reader(data_path, year_start, year_end):
     data = pd.read_csv(data_path)
 
     # Filter data based on years
-    data = data[(data['f_years'] >= year_start) & (data['f_years'] <= year_end)]
+    data = data[(data['fyear'] >= year_start) & (data['fyear'] <= year_end)]
 
     # Separate features and labels
     X = data.iloc[:, 4:]  # Assuming features start from column index 4
