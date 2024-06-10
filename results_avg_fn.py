@@ -6,4 +6,4 @@ data = df['metrics']
 
 df2 = pd.DataFrame([data])
 
-print df2
+print(df2)
