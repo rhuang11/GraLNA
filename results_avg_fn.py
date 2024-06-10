@@ -1,9 +1,24 @@
 import pandas as pd
 
-df = pd.read_csv('~/GraLNA/RF-FR/results_rf_fr.csv')
+csv_file = pd.read_csv('~/GraLNA/RF-FR/results_rf_fr.csv')
 
-data = df['metrics']
+with open(csv_file, 'r') as file:
+    # Create a CSV reader
+    reader = csv.DictReader(file)
+    
+    # Initialize empty lists to store the parsed data
+    data = []
+    
+    # Iterate over each row in the CSV file
+    for row in reader:
+        # Parse the dictionary in the current row
+        parsed_dict = {key: ast.literal_eval(value) for key, value in row.items()}
+        
+        # Append the parsed dictionary to the list
+        data.append(parsed_dict)
 
-df2 = pd.DataFrame(data)
+# Convert the list of dictionaries to a DataFrame
+df = pd.DataFrame(data)
 
-print(df2)
+# Display the DataFrame
+print(df)
