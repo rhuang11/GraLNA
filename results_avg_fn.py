@@ -6,7 +6,7 @@ df = pd.read_csv('~/GraLNA/RF-FR/results_rf_fr.csv')
 # Filter the DataFrame where the 'topN' column is 0.01
 filtered_df = df[df['topN'] == 0.01]
 
-metrics_list = filtered_df['metrics'].apply(ast.literal_eval)
+metrics_list = filtered_df['metrics'].apply(json.loads)
 
 # Create a DataFrame from the list of dictionaries
 metrics_df = pd.DataFrame(metrics_list.tolist())
