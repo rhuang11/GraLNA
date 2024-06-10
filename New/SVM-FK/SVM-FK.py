@@ -13,7 +13,17 @@ def financial_kernel_transform(X):
         for j in range(i + 1, n):
             ratios.append(X[:, i] / X[:, j])
             ratios.append(X[:, j] / X[:, i])
-    return np.array(ratios).T
+    ratios = np.array(ratios).T
+
+    # Convert infinite values to NaN
+    ratios[np.isinf(ratios)] = np.nan
+
+    # Fill missing values with the median of each column
+    for col in range(ratios.shape[1]):
+        median = np.nanmedian(ratios[:, col])
+        ratios[np.isnan(ratios[:, col]), col] = median
+
+    return ratios
 
 def data_reader(data_path, year_start, year_end):
     # Read data from CSV file
