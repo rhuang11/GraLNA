@@ -12,8 +12,8 @@ def data_reader(data_path, year_start, year_end):
     data = data[(data['fyear'] >= year_start) & (data['fyear'] <= year_end)]
 
     # Separate features and labels
-    X = data.iloc[:, 4:]  # Assuming features start from column index 4
-    y = data['labels']
+    X = data.iloc[:, 4]  # Assuming features start from column index 4
+    y = data['misstate']
 
     return X, y
 
