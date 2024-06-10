@@ -1,4 +1,4 @@
-import pandas as pandas
+import pandas as pd
 
 df = pd.read_csv('~/GraLNA/RF-FR/results_rf_fr.csv')
 
