@@ -1,101 +1,149 @@
-import numpy as np
 import pandas as pd
 from sklearnex import patch_sklearn
 patch_sklearn()
 from sklearn.svm import SVC
-from sklearn.metrics import roc_auc_score, ndcg_score
-from sklearn.model_selection import GridSearchCV, train_test_split
+from sklearn.metrics import accuracy_score, precision_score, recall_score, confusion_matrix, roc_auc_score
+from sklearn.preprocessing import StandardScaler
+import numpy as np
 
-def financial_kernel_transform(X):
-    n = X.shape[1]
-    ratios = []
-    for i in range(n):
-        for j in range(i + 1, n):
-            ratios.append(X[:, i] / X[:, j])
-            ratios.append(X[:, j] / X[:, i])
-    ratios = np.array(ratios).T
+# Load the data
+finfraud_copy = pd.read_csv('~GraLNA/new/finfraud_copy.csv')
 
-    # Convert infinite values to NaN
-    ratios[np.isinf(ratios)] = np.nan
+# Initialize the results DataFrame
+results = pd.DataFrame(columns=['year', 'auc', 'accuracy', 'precision', 'recall', 'true_positives', 'false_positives', 'false_negatives'])
 
-    # Fill missing values with the median of each column
-    for col in range(ratios.shape[1]):
-        median = np.nanmedian(ratios[:, col])
-        ratios[np.isnan(ratios[:, col]), col] = median
+# Assume 'finfraud_copy' is your DataFrame
+X1 = finfraud_copy.drop(['misstate', 'p_aaer', 'gvkey'], axis=1)
+y1 = finfraud_copy['misstate']
 
-    return ratios
+# Normalize the values in X1
+scaler = StandardScaler()
+X1_normalized = scaler.fit_transform(X1)
 
-def data_reader(data_path, year_start, year_end):
-    # Read data from CSV file
-    data = pd.read_csv(data_path)
+# Adding the normalized features back into the DataFrame for easy indexing
+X1_normalized_df = pd.DataFrame(X1_normalized, columns=X1.columns)
 
-    # Filter data based on years
-    data = data[(data['fyear'] >= year_start) & (data['fyear'] <= year_end)]
+# Define the financial kernel
+def financial_kernel(X1, X2):
+    n_features = X1.shape[1] // 2  # Assuming each feature has two years of data
+    kernel = np.zeros((X1.shape[0], X2.shape[0]))
 
-    # Separate features and labels
-    X = data.iloc[:, 4:].values  # Assuming features start from column index 4
-    y = data['misstate'].values
+    for i in range(n_features):
+        for j in range(i + 1, n_features):
+            A1 = X1[:, i]
+            A2 = X1[:, i + n_features]
+            L1 = X1[:, j]
+            L2 = X1[:, j + n_features]
 
-    return X, y
+            B1 = X2[:, i]
+            B2 = X2[:, i + n_features]
+            K1 = X2[:, j]
+            K2 = X2[:, j + n_features]
 
-# Set parameters
-start_year = 1991
-end_year = 2014
-
-# Create an empty DataFrame to store results
-results_df = pd.DataFrame(columns=['Year_Test', 'AUC', 'NDCG@1%', 'NDCG@2%', 'NDCG@3%', 'NDCG@4%', 'NDCG@5%'])
-
-# Loop through each testing year
-for year_test in range(2003, 2015):
-    print(f"==> Running SVM-FK (training period: {start_year}-{year_test-2}, testing period: {year_test}, with 2-year gap)...")
+            kernel += (A1 / L1)[:, None] * (B1 / K1)[None, :]
+            kernel += (L1 / A1)[:, None] * (K1 / B1)[None, :]
+            kernel += (L2 / A2)[:, None] * (K2 / B2)[None, :]
+            kernel += (A2 / L2)[:, None] * (B2 / K2)[None, :]
+            kernel += (A1 * L2 / (A2 * L1))[:, None] * (B1 * K2 / (B2 * K1))[None, :]
+            kernel += (L1 * A2 / (L2 * A1))[:, None] * (K1 * B2 / (K2 * B1))[None, :]
     
-    # Read training data
-    X_train_raw, y_train = data_reader('~/GraLNA/data_FraudDetection_JAR2020.csv', start_year, year_test-2)
+    return kernel
 
-    # Read testing data
-    X_test_raw, y_test = data_reader('~/GraLNA/data_FraudDetection_JAR2020.csv', year_test, year_test)
+# Training data is fyear = 1991-2001, testing data is fyear 2003 initially, then fyear 2004 but also expand training data to go up one year every time as well
+for year in range(2003, 2009):
+    X_train = X1_normalized_df[X1['fyear'] <= year - 2].values
+    X_test = X1_normalized_df[X1['fyear'] == year].values
+    y_train = y1[X1['fyear'] <= year - 2]
+    y_test = y1[X1['fyear'] == year]
 
-    # Apply financial kernel transformation
-    X_train = financial_kernel_transform(X_train_raw)
-    X_test = financial_kernel_transform(X_test_raw)
+    # Calculate the class weight ratio
+    class_weight_ratio = y_train.value_counts()[0] / y_train.value_counts()[1]
 
-    # Use a holdout set for parameter tuning
-    X_train_tune, X_val, y_train_tune, y_val = train_test_split(X_train, y_train, test_size=0.2, random_state=42)
-    
-    # Define the SVM model with class weights for cost-sensitive learning
-    param_grid = {'C': [0.1, 1, 10, 20, 50, 100]}
-    svc = SVC(kernel='linear', class_weight='balanced', probability=True)
-    clf = GridSearchCV(svc, param_grid, scoring='roc_auc', cv=5)
+    # Create an SVM model with a financial kernel
+    model = SVC(kernel=financial_kernel, probability=True, class_weight={0: 1, 1: class_weight_ratio}, random_state=10)
 
-    # Train the model and tune parameters
-    clf.fit(X_train_tune, y_train_tune)
-    best_model = clf.best_estimator_
+    # Fit the model
+    model.fit(X_train, y_train)
 
-    # Train the best model on the entire training set
-    best_model.fit(X_train, y_train)
-
-    # Make predictions
-    y_pred_proba = best_model.predict_proba(X_test)[:, 1]
+    # Predict probabilities for the test set
+    y_proba = model.predict_proba(X_test)[:, 1]
 
     # Calculate AUC
-    auc = roc_auc_score(y_test, y_pred_proba)
+    auc = roc_auc_score(y_test, y_proba)
+    print("AUC for year {}: {}".format(year, auc))
+
+    # Predict probabilities for the test set
+    y_proba_test = model.predict_proba(X_test)[:, 1]
+
+    # Rank the instances based on predicted probabilities
+    ranked_indices = np.argsort(y_proba_test)[::-1]  # Descending order
+
+    # Define k (e.g., top 1%)
+    k = int(len(y_test) * 0.01)
+
+    # Select the top k instances
+    top_k_indices = ranked_indices[:k]
+
+    # Calculate true positives (TP) in the top 1%
+    TP = y_test.iloc[top_k_indices].sum()
+
+    # Calculate false positives (FP) in the top 1%
+    FP = k - TP
+
+    # Calculate false negatives (FN) in the bottom 99%
+    FN = y_test.iloc[ranked_indices[k:]].sum()
+
+    # Calculate sensitivity
+    sensitivity = TP / (TP + FN) if (TP + FN) != 0 else 0
+    print("Sensitivity for year {}: {}".format(year, sensitivity))
+
+    # Calculate DCG@k
+    DCG_at_k = sum((2 ** y_test.iloc[ranked_indices[i]] - 1) / np.log2(i + 2) for i in range(k))
+
+    # Ideal DCG@k (when all true frauds are ranked at the top)
+    ideal_DCG_at_k = sum((2 ** 1 - 1) / np.log2(i + 2) for i in range(k)) 
 
     # Calculate NDCG@k
-    k_values = [0.01, 0.02, 0.03, 0.04, 0.05]
-    ndcg_scores = []
-    for k in k_values:
-        k_top = int(len(y_test) * k)
-        ndcg = ndcg_score([y_test], [y_pred_proba], k=k_top)
-        ndcg_scores.append(ndcg)
+    NDCG_at_k = DCG_at_k / ideal_DCG_at_k if ideal_DCG_at_k != 0 else 0
+    print("NDCG@{} for year {}: {}".format(k, year, NDCG_at_k))
 
-    # Store results in DataFrame
-    results_df = results_df.append({'Year_Test': year_test,
-                                    'AUC': auc,
-                                    'NDCG@1%': ndcg_scores[0],
-                                    'NDCG@2%': ndcg_scores[1],
-                                    'NDCG@3%': ndcg_scores[2],
-                                    'NDCG@4%': ndcg_scores[3],
-                                    'NDCG@5%': ndcg_scores[4]}, ignore_index=True)
+    # Calculate Precision
+    precision2 = TP / (TP + FP)
+    print("Precision for year {}: {}".format(year, precision2))
 
-# Write results to CSV
-results_df.to_csv('results_svm_fk.csv', index=False)
+    # Make predictions with probabilities
+    y_pred_prob = model.predict_proba(X_test)
+
+    # Find optimal threshold based on precision and recall
+    thresholds = np.arange(0, 1, 0.001)
+    scores = [precision_score(y_test, (y_pred_prob[:,1] > threshold).astype(int)) for threshold in thresholds]
+    best_threshold = thresholds[scores.index(max(scores))]
+    print(f'Best threshold for year {year}: {best_threshold}')
+
+    # Convert probabilities to binary predictions based on the optimal threshold
+    y_pred = (y_pred_prob[:,1] > best_threshold).astype(int)
+
+    # Calculate the accuracy
+    accuracy = accuracy_score(y_test, y_pred)
+    print(f'Accuracy for year {year}: {accuracy}')
+
+    # Calculate precision and recall
+    precision = precision_score(y_test, y_pred)
+    recall = recall_score(y_test, y_pred)
+    print(f'Precision for year {year}: {precision}')
+    print(f'Recall for year {year}: {recall}')
+
+    # Calculate true positives, false positives, and false negatives
+    tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
+    print(f'True Positives for year {year}: {tp}')
+    print(f'False Positives for year {year}: {fp}')
+    print(f'False Negatives for year {year}: {fn}')
+
+    # Calculate Area under the receiver operating characteristics (ROC) curve (AUC).
+    auc = roc_auc_score(y_test, y_pred_prob[:,1])
+    print(f'AUC for year {year}: {auc}')
+
+    # Add results to DataFrame
+    results = results.append({'year': year, 'auc': auc, 'accuracy': accuracy, 'NDCG_at_k' : NDCG_at_k , 'precision': precision, 'precision_JAR': precision2, 'sensitivity': sensitivity, 'recall': recall, 'true_positives': tp, 'false_positives': fp, 'false_negatives': fn}, ignore_index=True)
+
+print(results)
