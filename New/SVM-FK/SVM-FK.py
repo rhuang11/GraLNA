@@ -147,3 +147,6 @@ for year in range(2003, 2009):
     results = results.append({'year': year, 'auc': auc, 'accuracy': accuracy, 'NDCG_at_k' : NDCG_at_k , 'precision': precision, 'precision_JAR': precision2, 'sensitivity': sensitivity, 'recall': recall, 'true_positives': tp, 'false_positives': fp, 'false_negatives': fn}, ignore_index=True)
 
 print(results)
+
+# Save the results to a CSV file
+results.to_csv('SVM_FK_results.csv', index=False)
