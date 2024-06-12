@@ -1,22 +1,23 @@
 import pandas as pd
 from sklearnex import patch_sklearn
 patch_sklearn()
-import numpy as np
-from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
-from sklearn.metrics import accuracy_score, precision_score, recall_score, roc_auc_score
+from sklearn.metrics import accuracy_score, precision_score, recall_score, confusion_matrix, roc_auc_score
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import GridSearchCV
+import numpy as np
 from imblearn.under_sampling import RandomUnderSampler
 
 # Load the data
-finfraud_copy = pd.read_csv('~/GraLNA/New/finfraud_copy.csv')
+finfraud_copy = pd.read_csv('/Users/ryanhuang/Developer/GraLNA/New/finfraud_copy.csv')
 
-# Keep only the first 31 columns
-finfraud_copy = finfraud_copy.iloc[:, :31]
+# Keep only the first 28 columns
+finfraud_copy = finfraud_copy.iloc[:, :28]
 
 # Initialize the results DataFrame
-results = pd.DataFrame(columns=['year', 'auc', 'accuracy', 'precision', 'recall', 'true_positives', 'false_positives', 'false_negatives', 'NDCG_at_k', 'sensitivity'])
+results = pd.DataFrame(columns=['year', 'auc', 'accuracy', 'precision', 'recall', 'true_positives', 'false_positives', 'false_negatives'])
 
-# Prepare the data
+# Assume 'finfraud_copy' is your DataFrame
 X1 = finfraud_copy.drop(['misstate', 'p_aaer', 'gvkey'], axis=1)
 y1 = finfraud_copy['misstate']
 
@@ -27,66 +28,61 @@ X1_normalized = scaler.fit_transform(X1)
 # Adding the normalized features back into the DataFrame for easy indexing
 X1_normalized_df = pd.DataFrame(X1_normalized, columns=X1.columns)
 
-# Define the financial kernel
-def financial_kernel(X1, X2):
-    n_features = X1.shape[1] // 2  # Assuming each feature has two years of data
-    kernel = np.zeros((X1.shape[0], X2.shape[0]))
+def compute_financial_ratios(df):
+    ratios = []
+    n = df.shape[1] // 2  # Assumes half the columns are for year 1, half for year 2
+    for i in range(n):
+        for j in range(i + 1, n):
+            ratios.append(df.iloc[:, i] / df.iloc[:, j])
+            ratios.append(df.iloc[:, j] / df.iloc[:, i])
+            ratios.append(df.iloc[:, i + n] / df.iloc[:, j + n])
+            ratios.append(df.iloc[:, j + n] / df.iloc[:, i + n])
+            ratios.append((df.iloc[:, i] * df.iloc[:, j + n]) / (df.iloc[:, j] * df.iloc[:, i + n]))
+            ratios.append((df.iloc[:, j] * df.iloc[:, i + n]) / (df.iloc[:, i] * df.iloc[:, j + n]))
+    return pd.concat(ratios, axis=1)
 
-    for i in range(n_features):
-        for j in range(i + 1, n_features):
-            A1 = X1[:, i]
-            A2 = X1[:, i + n_features]
-            L1 = X1[:, j]
-            L2 = X1[:, j + n_features]
+def financial_kernel(X, Y):
+    ratios_X = compute_financial_ratios(pd.DataFrame(X))
+    ratios_Y = compute_financial_ratios(pd.DataFrame(Y))
+    return np.dot(ratios_X, ratios_Y.T)
 
-            B1 = X2[:, i]
-            B2 = X2[:, i + n_features]
-            K1 = X2[:, j]
-            K2 = X2[:, j + n_features]
-
-            kernel += (A1 / L1)[:, None] * (B1 / K1)[None, :]
-            kernel += (L1 / A1)[:, None] * (K1 / B1)[None, :]
-            kernel += (L2 / A2)[:, None] * (K2 / B2)[None, :]
-            kernel += (A2 / L2)[:, None] * (B2 / K2)[None, :]
-            kernel += (A1 * L2 / (A2 * L1))[:, None] * (B1 * K2 / (B2 * K1))[None, :]
-            kernel += (L1 * A2 / (L2 * A1))[:, None] * (K1 * B2 / (K2 * B1))[None, :]
-
-    # Deal with NaN values or zero division or infinity with median 
-    kernel = np.nan_to_num(kernel, nan=np.nanmedian(kernel), posinf=np.nanmedian(kernel), neginf=np.nanmedian(kernel))
-    
-    return kernel
-
-# Training and testing the model
+# Training data is fyear = 1991-2001, testing data is fyear 2003 initially, then fyear 2004 but also expand training data to go up one year every time as well
 for year in range(2003, 2009):
-    # Training data up to year - 2
     X_train2 = X1_normalized_df[X1['fyear'] <= year - 2].values
-    y_train2 = y1[X1['fyear'] <= year - 2]
-
-    # Testing data for the specific year
     X_test = X1_normalized_df[X1['fyear'] == year].values
+    y_train2 = y1[X1['fyear'] <= year - 2]
     y_test = y1[X1['fyear'] == year]
 
-    # Address class imbalance using RandomUnderSampler
+    # Pick same number of fraud and non-fraud cases for training and validation not using random 
     rus = RandomUnderSampler(sampling_strategy=1, random_state=42)
     X_train, y_train = rus.fit_resample(X_train2, y_train2)
 
-    class_weight_ratio = y_train.value_counts()[0] / y_train.value_counts()[1]
+    # Display X_train and y_train shape
+    print(X_train.shape, y_train.shape)
 
-    # Create an SVM model with a financial kernel
-    model = SVC(kernel=financial_kernel, probability=True, random_state=42, class_weight={0: 1, 1: class_weight_ratio})
+    # Cost-sensitive SVM with grid search for C+1:C-1 ratio
+    param_grid = {'C': [0.01, 0.1, 1, 10, 100], 'class_weight': [{1: 20, 0: 1}]}
+    model = SVC(kernel=financial_kernel, probability=True, random_state=10)
+    grid_search = GridSearchCV(model, param_grid, scoring='roc_auc', cv=5)
+    grid_search.fit(X_train, y_train)
 
-    # Fit the model
-    model.fit(X_train, y_train)
+    best_model = grid_search.best_estimator_
+
+    # Fit the best model
+    best_model.fit(X_train, y_train)
 
     # Predict probabilities for the test set
-    y_proba = model.predict_proba(X_test)[:, 1]
+    y_proba = best_model.predict_proba(X_test)[:, 1]
 
     # Calculate AUC
     auc = roc_auc_score(y_test, y_proba)
     print("AUC for year {}: {}".format(year, auc))
 
+    # Predict probabilities for the test set
+    y_proba_test = best_model.predict_proba(X_test)[:, 1]
+
     # Rank the instances based on predicted probabilities
-    ranked_indices = np.argsort(y_proba)[::-1]  # Descending order
+    ranked_indices = np.argsort(y_proba_test)[::-1]  # Descending order
 
     # Define k (e.g., top 1%)
     k = int(len(y_test) * 0.01)
@@ -122,7 +118,7 @@ for year in range(2003, 2009):
     print("Precision for year {}: {}".format(year, precision2))
 
     # Make predictions with probabilities
-    y_pred_prob = model.predict_proba(X_test)
+    y_pred_prob = best_model.predict_proba(X_test)
 
     # Find optimal threshold based on precision and recall
     thresholds = np.arange(0, 1, 0.001)
@@ -138,7 +134,7 @@ for year in range(2003, 2009):
     print(f'Accuracy for year {year}: {accuracy}')
 
     # Calculate precision and recall
-    precision = precision_score(y_test, y_pred, zero_division=1)
+    precision = precision_score(y_test, y_pred)
     recall = recall_score(y_test, y_pred)
     print(f'Precision for year {year}: {precision}')
     print(f'Recall for year {year}: {recall}')
@@ -159,4 +155,4 @@ for year in range(2003, 2009):
 print(results)
 
 # Save the results to a CSV file
-results.to_csv('~/GraLNA/SVM-FK/SVM_FK2_results.csv', index=False)
+results.to_csv('SVM_FK_results.csv', index=False)
