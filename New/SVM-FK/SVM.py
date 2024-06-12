@@ -22,34 +22,6 @@ X1_normalized = scaler.fit_transform(X1)
 # Adding the normalized features back into the DataFrame for easy indexing
 X1_normalized_df = pd.DataFrame(X1_normalized, columns=X1.columns)
 
-# Define the financial kernel
-def financial_kernel(X1, X2):
-    n_features = X1.shape[1] // 2  # Assuming each feature has two years of data
-    kernel = np.zeros((X1.shape[0], X2.shape[0]))
-
-    for i in range(n_features):
-        for j in range(i + 1, n_features):
-            A1 = X1[:, i]
-            A2 = X1[:, i + n_features]
-            L1 = X1[:, j]
-            L2 = X1[:, j + n_features]
-
-            B1 = X2[:, i]
-            B2 = X2[:, i + n_features]
-            K1 = X2[:, j]
-            K2 = X2[:, j + n_features]
-
-            kernel += (A1 / L1)[:, None] * (B1 / K1)[None, :]
-            kernel += (L1 / A1)[:, None] * (K1 / B1)[None, :]
-            kernel += (L2 / A2)[:, None] * (K2 / B2)[None, :]
-            kernel += (A2 / L2)[:, None] * (B2 / K2)[None, :]
-            kernel += (A1 * L2 / (A2 * L1))[:, None] * (B1 * K2 / (B2 * K1))[None, :]
-            kernel += (L1 * A2 / (L2 * A1))[:, None] * (K1 * B2 / (K2 * B1))[None, :]
-
-    # deal with NaN values or zero division or infinity with median 
-    kernel = np.nan_to_num(kernel, nan=np.nanmedian(kernel), posinf=np.nanmedian(kernel), neginf=np.nanmedian(kernel))
-    
-    return kernel
 
 # Training data is fyear = 1991-2001, testing data is fyear 2003 initially, then fyear 2004 but also expand training data to go up one year every time as well
 for year in range(2003, 2009):
@@ -68,11 +40,9 @@ for year in range(2003, 2009):
     # display x train and y train shape
     print(X_train.shape, y_train.shape)
 
-    # Create an SVM model with a financial kernel
-    #model = SVC(kernel=financial_kernel, probability=True, random_state=42)
-
     # without kernel
-    model = SVC(probability=True, random_state=42)
+    class_weight_ratio = y_train.value_counts()[0] / y_train.value_counts()[1]
+    model = SVC(probability=True, random_state=42, class_weight={0: 1, 1: class_weight_ratio})
 
     # Fit the model
     model.fit(X_train, y_train)
