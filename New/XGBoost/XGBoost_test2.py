@@ -6,6 +6,9 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, confu
 from sklearn.preprocessing import StandardScaler
 from xgboost import XGBClassifier
 
+# Load the data
+finfraud_copy = pd.read_csv('~/GraLNA/New/finfraud_copy.csv')
+
 # Initialize the results DataFrame
 results = pd.DataFrame(columns=['year', 'auc', 'accuracy', 'precision', 'recall', 'true_positives', 'false_positives', 'false_negatives'])
 
