@@ -12,7 +12,7 @@ from imblearn.under_sampling import RandomUnderSampler
 finfraud_copy = pd.read_csv('~/GraLNA/New/finfraud_copy.csv')
 
 # Keep only the first 28 columns
-finfraud_copy = finfraud_copy.iloc[:, :28]
+finfraud_copy = finfraud_copy.iloc[:, :31]
 
 # Initialize the results DataFrame
 results = pd.DataFrame(columns=['year', 'auc', 'accuracy', 'precision', 'recall', 'true_positives', 'false_positives', 'false_negatives'])
