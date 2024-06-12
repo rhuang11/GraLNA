@@ -7,7 +7,7 @@ from sklearn.preprocessing import StandardScaler
 import numpy as np
 
 # Load the data
-finfraud_copy = pd.read_csv('~GraLNA/new/finfraud_copy.csv')
+finfraud_copy = pd.read_csv('~/GraLNA/New/finfraud_copy.csv')
 
 # Initialize the results DataFrame
 results = pd.DataFrame(columns=['year', 'auc', 'accuracy', 'precision', 'recall', 'true_positives', 'false_positives', 'false_negatives'])
