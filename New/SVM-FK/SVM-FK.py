@@ -1,6 +1,4 @@
 import pandas as pd
-from sklearnex import patch_sklearn
-patch_sklearn()
 from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score, precision_score, recall_score, confusion_matrix, roc_auc_score
 from sklearn.preprocessing import StandardScaler
@@ -47,6 +45,9 @@ def financial_kernel(X1, X2):
             kernel += (A2 / L2)[:, None] * (B2 / K2)[None, :]
             kernel += (A1 * L2 / (A2 * L1))[:, None] * (B1 * K2 / (B2 * K1))[None, :]
             kernel += (L1 * A2 / (L2 * A1))[:, None] * (K1 * B2 / (K2 * B1))[None, :]
+
+    # deal with NaN values or zero division or infinity with median 
+    kernel = np.nan_to_num(kernel, nan=np.nanmedian(kernel), posinf=np.nanmedian(kernel), neginf=np.nanmedian(kernel))
     
     return kernel
 
@@ -57,8 +58,15 @@ for year in range(2003, 2009):
     y_train2 = y1[X1['fyear'] <= year - 2]
     y_test = y1[X1['fyear'] == year]
 
-    # randomly sample number of misstate=0 with size of misstate=1
-    X_train, y_train = RandomUnderSampler(sampling_strategy=1, random_state=42).fit_resample(X_train2, y_train2)
+    # print number of misstate = 1 and 0 in X_train2
+    print(y_train2.value_counts())
+
+    # pick same number of fraud and non-fraud cases for training and validation not using random 
+    rus = RandomUnderSampler(sampling_strategy=1, random_state=42)
+    X_train, y_train = rus.fit_resample(X_train2, y_train2)
+
+    # display x train and y train shape
+    print(X_train.shape, y_train.shape)
 
     # Create an SVM model with a financial kernel
     model = SVC(kernel=financial_kernel, probability=True, random_state=10)
@@ -150,4 +158,4 @@ for year in range(2003, 2009):
 print(results)
 
 # Save the results to a CSV file
-results.to_csv('SVM_FK_results.csv', index=False)
+results.to_csv('~/GraLNA/New/SVM-FK/SVM_FK_results.csv', index=False)
