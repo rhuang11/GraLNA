@@ -6,7 +6,7 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, confu
 from sklearn.preprocessing import StandardScaler
 import numpy as np
 
-finfraud_copy = pd.read_csv('~GraLNA/new/finfraud_copy.csv')
+finfraud_copy = pd.read_csv('~/raLNA/new/finfraud_copy.csv')
 
 # Initialize the results DataFrame
 results = pd.DataFrame(columns=['year', 'auc', 'accuracy', 'precision', 'recall', 'true_positives', 'false_positives', 'false_negatives'])
