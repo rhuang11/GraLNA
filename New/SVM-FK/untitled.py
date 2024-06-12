@@ -69,7 +69,7 @@ for year in range(2003, 2009):
     print(X_train.shape, y_train.shape)
 
     # Create an SVM model with a financial kernel
-    model = SVC(kernel=financial_kernel, probability=True, random_state=42)
+    #model = SVC(kernel=financial_kernel, probability=True, random_state=42)
 
     # without kernel
     model = SVC(probability=True, random_state=42)
