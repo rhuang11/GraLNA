@@ -161,4 +161,4 @@ for year in range(2003, 2009):
 print(results)
 
 # Save the results to a CSV file
-results.to_csv('~/GraLNA/New/SVM-FK/SVM_FK_results.csv', index=False)
+results.to_csv('~/GraLNA/New/SVM-FK/SVM_results.csv', index=False)
