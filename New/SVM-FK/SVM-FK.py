@@ -4,8 +4,8 @@ patch_sklearn()
 from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score, precision_score, recall_score, confusion_matrix, roc_auc_score
 from sklearn.preprocessing import StandardScaler
-from sklearn.utils import resample
 import numpy as np
+from imblearn.under_sampling import RandomUnderSampler
 
 # Load the data
 finfraud_copy = pd.read_csv('~/GraLNA/New/finfraud_copy.csv')
@@ -50,56 +50,18 @@ def financial_kernel(X1, X2):
     
     return kernel
 
-# Function to perform grid search for optimal class weight ratio
-def grid_search_optimal_ratio(X_train, y_train, X_val, y_val):
-    best_auc = 0
-    best_ratio = 1
-    for ratio in [1, 5, 10, 15, 20, 25, 30]:  # Example ratios, adjust as needed
-        model = SVC(kernel=financial_kernel, probability=True, class_weight={0: 1, 1: ratio}, random_state=10)
-        model.fit(X_train, y_train)
-        y_proba = model.predict_proba(X_val)[:, 1]
-        auc = roc_auc_score(y_val, y_proba)
-        if auc > best_auc:
-            best_auc = auc
-            best_ratio = ratio
-    return best_ratio
-
-# Function to create a balanced sample
-def create_balanced_sample(X, y):
-    X_fraud = X[y == 1]
-    y_fraud = y[y == 1]
-    X_nonfraud = X[y == 0]
-    y_nonfraud = y[y == 0]
-    
-    X_nonfraud_downsampled, y_nonfraud_downsampled = resample(X_nonfraud, y_nonfraud, 
-                                                             replace=False, 
-                                                             n_samples=len(y_fraud), 
-                                                             random_state=42)
-    X_balanced = np.vstack((X_fraud, X_nonfraud_downsampled))
-    y_balanced = np.hstack((y_fraud, y_nonfraud_downsampled))
-    
-    return X_balanced, y_balanced
-
 # Training data is fyear = 1991-2001, testing data is fyear 2003 initially, then fyear 2004 but also expand training data to go up one year every time as well
 for year in range(2003, 2009):
-    X_train_raw = X1_normalized_df[X1['fyear'] <= year - 2].values
-    y_train_raw = y1[X1['fyear'] <= year - 2]
-    
-    X_val_raw = X1_normalized_df[(X1['fyear'] == year - 1) | (X1['fyear'] == year - 2)].values  # Use two years for validation
-    y_val_raw = y1[(X1['fyear'] == year - 1) | (X1['fyear'] == year - 2)]
-    
+    X_train2 = X1_normalized_df[X1['fyear'] <= year - 2].values
     X_test = X1_normalized_df[X1['fyear'] == year].values
+    y_train2 = y1[X1['fyear'] <= year - 2]
     y_test = y1[X1['fyear'] == year]
 
-    # Create balanced training and validation samples
-    X_train, y_train = create_balanced_sample(X_train_raw, y_train_raw)
-    X_val, y_val = create_balanced_sample(X_val_raw, y_val_raw)
+    # randomly sample number of misstate=0 with size of misstate=1
+    X_train, y_train = RandomUnderSampler(sampling_strategy=1, random_state=42).fit_resample(X_train2, y_train2)
 
-    # Find the optimal class weight ratio using grid search
-    class_weight_ratio = grid_search_optimal_ratio(X_train, y_train, X_val, y_val)
-
-    # Create an SVM model with a financial kernel using the optimal class weight ratio
-    model = SVC(kernel=financial_kernel, probability=True, class_weight={0: 1, 1: class_weight_ratio}, random_state=10)
+    # Create an SVM model with a financial kernel
+    model = SVC(kernel=financial_kernel, probability=True, random_state=10)
 
     # Fit the model
     model.fit(X_train, y_train)
@@ -111,8 +73,11 @@ for year in range(2003, 2009):
     auc = roc_auc_score(y_test, y_proba)
     print("AUC for year {}: {}".format(year, auc))
 
+    # Predict probabilities for the test set
+    y_proba_test = model.predict_proba(X_test)[:, 1]
+
     # Rank the instances based on predicted probabilities
-    ranked_indices = np.argsort(y_proba)[::-1]  # Descending order
+    ranked_indices = np.argsort(y_proba_test)[::-1]  # Descending order
 
     # Define k (e.g., top 1%)
     k = int(len(y_test) * 0.01)
@@ -171,21 +136,18 @@ for year in range(2003, 2009):
 
     # Calculate true positives, false positives, and false negatives
     tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
-    
-    # Add the results to the DataFrame
-    results = results.append({
-        'year': year,
-        'auc': auc,
-        'accuracy': accuracy,
-        'precision': precision,
-        'recall': recall,
-        'true_positives': tp,
-        'false_positives': fp,
-        'false_negatives': fn,
-        'sensitivity': sensitivity,
-        'ndcg@k': NDCG_at_k,
-        'precision_JAR': precision2
-    }, ignore_index=True)
+    print(f'True Positives for year {year}: {tp}')
+    print(f'False Positives for year {year}: {fp}')
+    print(f'False Negatives for year {year}: {fn}')
 
-# Save results to a CSV file
+    # Calculate Area under the receiver operating characteristics (ROC) curve (AUC).
+    auc = roc_auc_score(y_test, y_pred_prob[:,1])
+    print(f'AUC for year {year}: {auc}')
+
+    # Add results to DataFrame
+    results = results.append({'year': year, 'auc': auc, 'accuracy': accuracy, 'NDCG_at_k' : NDCG_at_k , 'precision': precision, 'precision_JAR': precision2, 'sensitivity': sensitivity, 'recall': recall, 'true_positives': tp, 'false_positives': fp, 'false_negatives': fn}, ignore_index=True)
+
+print(results)
+
+# Save the results to a CSV file
 results.to_csv('SVM_FK_results.csv', index=False)
