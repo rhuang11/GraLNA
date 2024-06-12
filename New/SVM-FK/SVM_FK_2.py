@@ -1,4 +1,6 @@
 import pandas as pd
+from sklearnex import patch_sklearn
+patch_sklearn()
 import numpy as np
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
