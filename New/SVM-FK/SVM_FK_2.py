@@ -67,8 +67,10 @@ for year in range(2003, 2009):
     rus = RandomUnderSampler(sampling_strategy=1, random_state=42)
     X_train, y_train = rus.fit_resample(X_train2, y_train2)
 
+    class_weight_ratio = y_train.value_counts()[0] / y_train.value_counts()[1]
+
     # Create an SVM model with a financial kernel
-    model = SVC(kernel=financial_kernel, probability=True, random_state=10)
+    model = SVC(kernel=financial_kernel, probability=True, random_state=42, class_weight={0: 1, 1: class_weight_ratio})
 
     # Fit the model
     model.fit(X_train, y_train)
