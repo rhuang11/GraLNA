@@ -30,7 +30,7 @@ for year in range(2003, 2009):
     y_test = y1[X1['fyear'] == year]
 
     # Create a Random Forest model
-    model = RandomForestClassifier(random_state=42, class_weight='balanced', n_estimators=3000)
+    model = RandomForestClassifier(random_state=42, class_weight='balanced', n_estimators=100)
 
     # Fit the model
     model.fit(X_train, y_train)
@@ -114,3 +114,5 @@ for year in range(2003, 2009):
     results = results.append({'year': year, 'auc': auc, 'accuracy': accuracy, 'NDCG_at_k': NDCG_at_k, 'precision': precision, 'precision_JAR': precision2, 'sensitivity': sensitivity, 'recall': recall, 'true_positives': tp, 'false_positives': fp, 'false_negatives': fn}, ignore_index=True)
 
 print(results)
+results.to_csv('~/GraLNA/New/RF/RF_results.csv', index=False)
+
