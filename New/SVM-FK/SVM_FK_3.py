@@ -9,7 +9,7 @@ import numpy as np
 from imblearn.under_sampling import RandomUnderSampler
 
 # Load the data
-finfraud_copy = pd.read_csv('/Users/ryanhuang/Developer/GraLNA/New/finfraud_copy.csv')
+finfraud_copy = pd.read_csv('~/GraLNA/New/finfraud_copy.csv')
 
 # Keep only the first 28 columns
 finfraud_copy = finfraud_copy.iloc[:, :28]
@@ -155,4 +155,4 @@ for year in range(2003, 2009):
 print(results)
 
 # Save the results to a CSV file
-results.to_csv('SVM_FK_results.csv', index=False)
+results.to_csv('~/GraLNA/New/SVM-FK/SVM_FK3_results.csv', index=False)
