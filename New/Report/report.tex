@@ -10,7 +10,7 @@
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 \begin{document}
 
-\title{Interim Report: Detecting Fraud and Misstatements in Annual Financial Statement Reports}
+\title{Detecting Fraud and Misstatements in Annual Financial Statement Reports}
 
 \author{\IEEEauthorblockN{Ryan Huang}\IEEEauthorblockA{\textit{Department of Computer Science}\\\textit{Department of Economics}\\\textit{University of North Carolina at Chapel-Hill}\\Chapel Hill, USA\\rhuang1@unc.edu}\and
 \IEEEauthorblockN{Chunjiang Zhu}
@@ -29,11 +29,11 @@ q\_tong@uncg.edu}
 
 \maketitle
 
-\begin{abstract} We develop a new fraud detection model that builds upon existing machine learning methods and incorporates recent technological advances in the Large Language Model field such as GPT-4 and GPT-4o. We demonstrate that combining deep learning knowledge with domain knowledge is beneficial towards fraud detection. We differ from previous research by using textual and linguistic data from annual 10-k financial statements in addition to the raw accounting numbers. 
+\begin{abstract} We develop a new fraud detection model that builds upon existing machine learning methods and incorporates recent technological advances in the Large Language Model field such as LLaMA3 and GPT-4o. We demonstrate that combining deep learning knowledge with domain knowledge is beneficial towards fraud detection. We differ from previous research by using textual and linguistic data from annual 10-k financial statements in addition to the raw accounting numbers. 
 \end{abstract}
 
 \begin{IEEEkeywords}
-Fraud Detection, Large Language Models, Ensemble Learning, Neural Networks, Machine Learning
+Fraud Detection, Large Language Models, Neural Networks, Machine Learning
 \end{IEEEkeywords}
 
 \section{Introduction}
@@ -53,10 +53,10 @@ and others are deliberate, using specifications that anticipate your paper
 as one part of the entire proceedings, and not as an independent document. 
 Please do not revise any of the current designations.
 
-\section{Methodology}
+\section{Methodology} We use 
 
 \subsection{Machine Learning Methods} 
-\subsubsection{Logistic Regression}
+\subsubsection{Logistic Regression} 
 \subsubsection{Random Forest}
 \subsubsection{SVM}
 \subsubsection{XGBoost}
@@ -88,39 +88,40 @@ abbreviations in the title or heads unless they are unavoidable.
 \begin{table}[htbp]
 \caption{Financial Variables}
 \centering
-\begin{tabular}{@{}p{2.4cm}p{6cm}@{}} 
+\begin{tabular}{@{}p{3.4cm}p{5cm}@{}} 
 \toprule
-\textbf{Abbreviation} & \textbf{Financial Variable} \\
+\textbf{\hspace{5mm}Abbreviation} & \textbf{Financial Variable\hspace{5mm}} \\
 \midrule
-ACT & Total Current Assets \\
-AT & Total Assets \\
-AP & Accounts Payable \\
-CEQ & Common Equity \\
-CHE & Cash \\
-COGS & Cost of Goods Sold \\
-CSHO & Common Shares Outstanding \\
-DLC & Current Debt \\
-DLTT & Long Term Debt \\
-DP & Depreciation \\
-IB & Income Before Extraordinary Items \\
-INVT & Inventories \\
-IVAO & Investments Advances Other \\
-IVST & Short Term Investments \\
-LCT & Current Liabilities \\
-LT & Total Liabilities \\
-NI & Net Income \\
-PPEGT & Gross Property Plant Equipment \\
-PSTK & Preferred Stock \\
-RE & Retained Earnings \\
-RECT & Receivables \\
-SALE & Sales \\
-SEQ & Stockholders Equity \\
-TXT & Income Tax \\
-XINT & Interest Expense \\
+\hspace{5mm}ACT & Total Current Assets\hspace{5mm} \\
+\hspace{5mm}AT & Total Assets\hspace{5mm} \\
+\hspace{5mm}AP & Accounts Payable\hspace{5mm} \\
+\hspace{5mm}CEQ & Common Equity\hspace{5mm} \\
+\hspace{5mm}CHE & Cash\hspace{5mm} \\
+\hspace{5mm}COGS & Cost of Goods Sold\hspace{5mm} \\
+\hspace{5mm}CSHO & Common Shares Outstanding\hspace{5mm} \\
+\hspace{5mm}DLC & Current Debt\hspace{5mm} \\
+\hspace{5mm}DLTT & Long Term Debt\hspace{5mm} \\
+\hspace{5mm}DP & Depreciation\hspace{5mm} \\
+\hspace{5mm}IB & Income Before Extraordinary Items\hspace{5mm} \\
+\hspace{5mm}INVT & Inventories\hspace{5mm} \\
+\hspace{5mm}IVAO & Investments Advances Other\hspace{5mm} \\
+\hspace{5mm}IVST & Short Term Investments\hspace{5mm} \\
+\hspace{5mm}LCT & Current Liabilities\hspace{5mm} \\
+\hspace{5mm}LT & Total Liabilities\hspace{5mm} \\
+\hspace{5mm}NI & Net Income\hspace{5mm} \\
+\hspace{5mm}PPEGT & Gross Property Plant Equipment\hspace{5mm} \\
+\hspace{5mm}PSTK & Preferred Stock\hspace{5mm} \\
+\hspace{5mm}RE & Retained Earnings\hspace{5mm} \\
+\hspace{5mm}RECT & Receivables\hspace{5mm} \\
+\hspace{5mm}SALE & Sales\hspace{5mm} \\
+\hspace{5mm}SEQ & Stockholders Equity\hspace{5mm} \\
+\hspace{5mm}TXT & Income Tax\hspace{5mm} \\
+\hspace{5mm}XINT & Interest Expense\hspace{5mm} \\
 \bottomrule
 \end{tabular}
 \label{tab1}
 \end{table}
+
 
 \subsection{Units}
 \begin{itemize}
@@ -149,6 +150,12 @@ the equation. Use ``\eqref{eq}'', not ``Eq.~\eqref{eq}'' or ``equation \eqref{eq
 the beginning of a sentence: ``Equation \eqref{eq} is . . .''
 
 \subsection{Challenges}
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=\columnwidth]{fraud_peryear}}
+\caption{Example of a figure caption.}
+\label{fig}
+\end{figure}
 
 Please use ``soft'' (e.g., \verb|\eqref{Eq}|) cross references instead
 of ``hard'' references (e.g., \verb|(1)|). That will make it possible
@@ -210,6 +217,48 @@ and by indexing services. Names should not be listed in columns nor group by
 affiliation. Please keep your affiliations as succinct as possible (for 
 example, do not differentiate among departments of the same organization).
 
+\begin{table}[htbp]
+\caption{Repeat Offenders Frequency}
+\centering
+\begin{tabular}{@{}p{6.3cm}p{2.1cm}@{}} 
+\toprule
+\textbf{\hspace{5mm}Company Name} & \textbf{Frequency}\hspace{5mm} \\
+\midrule
+\hspace{5mm}Black Box Corp & 13\hspace{5mm} \\
+\hspace{5mm}Overseas Shipholding Group & 12\hspace{5mm} \\
+\hspace{5mm}Affiliated Computer Services & 12\hspace{5mm} \\
+\hspace{5mm}UnitedHealth Group Inc & 11\hspace{5mm} \\
+\hspace{5mm}Integrated Silicon Solution & 9\hspace{5mm} \\
+\hspace{5mm}Mercury Interactive Corp & 9\hspace{5mm} \\
+\hspace{5mm}Monster Worldwide Inc & 8\hspace{5mm} \\
+\hspace{5mm}Broadcom Corp -Cl A & 8\hspace{5mm} \\
+\hspace{5mm}Vitesse Semiconductor Corp & 8\hspace{5mm} \\
+\hspace{5mm}Comverse Technology Inc & 7\hspace{5mm} \\
+\hspace{5mm}Elbit Medical Imaging Ltd & 7\hspace{5mm}  \\
+\hspace{5mm}Conagra Foods Inc & 7\hspace{5mm} \\
+\hspace{5mm}Interpublic Group of Cos & 7\hspace{5mm} \\
+\hspace{5mm}NCI Inc & 7\hspace{5mm} \\
+\hspace{5mm}Analogic Corp & 6\hspace{5mm} \\
+\hspace{5mm}Dow Chemical & 6\hspace{5mm} \\
+\hspace{5mm}Take-Two Interactive Sftwr & 6\hspace{5mm} \\
+\hspace{5mm}Diebold Inc & 6\hspace{5mm} \\
+\hspace{5mm}NIC Inc & 6\hspace{5mm} \\
+\hspace{5mm}Engineered Support Systems & 6\hspace{5mm} \\
+\hspace{5mm}Cummins Inc & 6\hspace{5mm} \\
+\hspace{5mm}UCI Medical Affiliates Inc & 6\hspace{5mm} \\
+\hspace{5mm}Brooks Automation Inc & 6\hspace{5mm} \\
+\hspace{5mm}Fortune Brands Inc & 6\hspace{5mm} \\
+\hspace{5mm}Thor Industries Inc & 6\hspace{5mm} \\
+\hspace{5mm}Safenet Inc & 6\hspace{5mm} \\
+\hspace{5mm}Utstarcom Inc & 6\hspace{5mm} \\
+\bottomrule
+\end{tabular}
+\label{tab1}
+\end{table}
+
+
+
+
 \subsection{Identify the Headings}
 Headings, or heads, are organizational devices that guide the reader through 
 your paper. There are two types: component heads and text heads.
@@ -229,6 +278,7 @@ sub-topics, the next level head (uppercase Roman numerals) should be used
 and, conversely, if there are not at least two sub-topics, then no subheads 
 should be introduced.
 
+
 \subsection{Figures and Tables}
 \paragraph{Positioning Figures and Tables} Place figures and tables at the top and 
 bottom of columns. Avoid placing them in the middle of columns. Large 
@@ -237,30 +287,29 @@ below the figures; table heads should appear above the tables. Insert
 figures and tables after they are cited in the text. Use the abbreviation 
 ``Fig.~\ref{fig}'', even at the beginning of a sentence.
 
-\begin{table}[htbp]
-\caption{Performance Evaluation Metrics for the Test Period 2003-08}
-\centering
-\begin{tabular}{ccccc}
-\toprule
-Method & AUC & NDCG@k & Sensitivity & Precision \\
-\midrule
-Logit & 0.703 & 0.022 & 3.103\% & 2.562\% \\
-Random Forest & 0.709 & 0.063 & 7.177\% & 5.714\% \\
-XGBoost & 0.713 & 0.070 & 8.121\% & 6.546\% \\
-SVM & 0.708 & 0.027 & 3.084\% & 2.285\% \\
-SVM-FK & 0.503 & 0.010 & 1.321\% & 1.130\% \\
-RUSBoost & 0.690 & 0.022 & 2.265\% & 1.997\% \\
-\bottomrule
-\end{tabular}
-\label{tab1}
-\end{table}
-
-
 \begin{figure}[htbp]
-\centerline{\includegraphics{fig1.png}}
+\centerline{\includegraphics[width=\columnwidth]{unique_fraud}}
 \caption{Example of a figure caption.}
 \label{fig}
 \end{figure}
+
+\section{Performance Evaluation Metrics}
+
+\begin{table}[htbp]
+\caption{Performance Evaluation Metrics for the Test Period 2003-08}
+\centering
+\begin{tabular}{p{2.495cm}cccc}
+\toprule
+\textbf{Method} & \textbf{AUC} & \textbf{NDCG@k} & \textbf{Sensitivity} & \textbf{Precision} \\
+\midrule
+\raggedright (1) Logit & 0.703 & 0.022 & 3.103\% & 2.562\% \\
+\raggedright (2) Random Forest & 0.709 & 0.063 & 7.177\% & 5.714\% \\
+\raggedright (3) XGBoost & 0.713 & 0.070 & 8.121\% & 6.546\% \\
+\raggedright (4) SVM & 0.708 & 0.027 & 3.084\% & 2.285\% \\
+\raggedright (6) RUSBoost & 0.751 & 0.029 & 2.996\% & 2.835\% \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 Figure Labels: Use 8 point Times New Roman for Figure labels. Use words 
 rather than symbols or abbreviations when writing Figure axis labels to 
@@ -310,15 +359,7 @@ element symbols.
 For papers published in translation journals, please give the English 
 citation first, followed by the original foreign-language citation \cite{b6}.
 
-\begin{thebibliography}{00}
-\bibitem{b1} G. Eason, B. Noble, and I. N. Sneddon, ``On certain integrals of Lipschitz-Hankel type involving products of Bessel functions,'' Phil. Trans. Roy. Soc. London, vol. A247, pp. 529--551, April 1955.
-\bibitem{b2} J. Clerk Maxwell, A Treatise on Electricity and Magnetism, 3rd ed., vol. 2. Oxford: Clarendon, 1892, pp.68--73.
-\bibitem{b3} I. S. Jacobs and C. P. Bean, ``Fine particles, thin films and exchange anisotropy,'' in Magnetism, vol. III, G. T. Rado and H. Suhl, Eds. New York: Academic, 1963, pp. 271--350.
-\bibitem{b4} K. Elissa, ``Title of paper if known,'' unpublished.
-\bibitem{b5} R. Nicole, ``Title of paper with only first word capitalized,'' J. Name Stand. Abbrev., in press.
-\bibitem{b6} Y. Yorozu, M. Hirano, K. Oka, and Y. Tagawa, ``Electron spectroscopy studies on magneto-optical media and plastic substrate interface,'' IEEE Transl. J. Magn. Japan, vol. 2, pp. 740--741, August 1987 [Digests 9th Annual Conf. Magnetics Japan, p. 301, 1982].
-\bibitem{b7} M. Young, The Technical Writer's Handbook. Mill Valley, CA: University Science, 1989.
-\end{thebibliography}
+
 \vspace{12pt}
 \color{red}
 IEEE conference templates contain guidance text for composing and formatting conference papers. Please ensure that all template text is removed from your conference paper prior to submission to the conference. Failure to remove the template text from your paper may result in your paper not being published.
