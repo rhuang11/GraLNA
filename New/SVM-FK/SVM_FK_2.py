@@ -51,9 +51,9 @@ def financial_kernel(X1, X2):
             kernel += (A1 * L2 / (A2 * L1))[:, None] * (B1 * K2 / (B2 * K1))[None, :]
             kernel += (L1 * A2 / (L2 * A1))[:, None] * (K1 * B2 / (K2 * B1))[None, :]
 
-    # Deal with NaN values or zero division or infinity with median 
+    # Deal with NaN values or zero division or infinity with median
     kernel = np.nan_to_num(kernel, nan=np.nanmedian(kernel), posinf=np.nanmedian(kernel), neginf=np.nanmedian(kernel))
-    
+
     return kernel
 
 # Training and testing the model
