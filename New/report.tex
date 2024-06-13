@@ -5,6 +5,7 @@
 \usepackage{graphicx}
 \usepackage{textcomp}
 \usepackage{xcolor}
+\usepackage{booktabs}
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 \begin{document}
@@ -54,13 +55,20 @@ Please do not revise any of the current designations.
 
 \section{Methodology}
 
-\subsection{Machine Learning Methods}
-Filler
+\subsection{Machine Learning Methods} 
+\subsubsection{Logistic Regression}
+\subsubsection{Random Forest}
+\subsubsection{SVM}
+\subsubsection{XGBoost}
+\subsubsection{RUSBoost}
 \subsection{Deep Learning Methods}
-Filler
-\subsection{Large-Language Models}
-Filler
-
+\subsubsection{Hierarchical Attention Network (HAN)}
+\subsubsection{Long Short-Term Memory (LSTM)}
+\subsubsection{Multi-layer Perceptron (MLP)}
+\subsection{Large-Language Models (LLMs)}
+\subsubsection{GPT-4}
+\subsubsection{FinBERT}
+\subsubsection{LLaMA3}
 \section{Data}
 Before you begin to format your paper, first write and save the content as a 
 separate text file. Complete all content and organizational editing before 
@@ -76,6 +84,43 @@ Define abbreviations and acronyms the first time they are used in the text,
 even after they have been defined in the abstract. Abbreviations such as 
 IEEE, SI, MKS, CGS, ac, dc, and rms do not have to be defined. Do not use 
 abbreviations in the title or heads unless they are unavoidable.
+
+\begin{table}[htbp]
+\caption{Financial Variables}
+\centering
+\begin{tabular}{@{}p{2.4cm}p{6cm}@{}} 
+\toprule
+\textbf{Abbreviation} & \textbf{Financial Variable} \\
+\midrule
+ACT & Total Current Assets \\
+AT & Total Assets \\
+AP & Accounts Payable \\
+CEQ & Common Equity \\
+CHE & Cash \\
+COGS & Cost of Goods Sold \\
+CSHO & Common Shares Outstanding \\
+DLC & Current Debt \\
+DLTT & Long Term Debt \\
+DP & Depreciation \\
+IB & Income Before Extraordinary Items \\
+INVT & Inventories \\
+IVAO & Investments Advances Other \\
+IVST & Short Term Investments \\
+LCT & Current Liabilities \\
+LT & Total Liabilities \\
+NI & Net Income \\
+PPEGT & Gross Property Plant Equipment \\
+PSTK & Preferred Stock \\
+RE & Retained Earnings \\
+RECT & Receivables \\
+SALE & Sales \\
+SEQ & Stockholders Equity \\
+TXT & Income Tax \\
+XINT & Interest Expense \\
+\bottomrule
+\end{tabular}
+\label{tab1}
+\end{table}
 
 \subsection{Units}
 \begin{itemize}
@@ -193,21 +238,23 @@ figures and tables after they are cited in the text. Use the abbreviation
 ``Fig.~\ref{fig}'', even at the beginning of a sentence.
 
 \begin{table}[htbp]
-\caption{Table Type Styles}
-\begin{center}
-\begin{tabular}{|c|c|c|c|}
-\hline
-\textbf{Table}&\multicolumn{3}{|c|}{\textbf{Table Column Head}} \\
-\cline{2-4} 
-\textbf{Head} & \textbf{\textit{Table column subhead}}& \textbf{\textit{Subhead}}& \textbf{\textit{Subhead}} \\
-\hline
-copy& More table copy$^{\mathrm{a}}$& &  \\
-\hline
-\multicolumn{4}{l}{$^{\mathrm{a}}$Sample of a Table footnote.}
+\caption{Performance Evaluation Metrics for the Test Period 2003-08}
+\centering
+\begin{tabular}{ccccc}
+\toprule
+Method & AUC & NDCG@k & Sensitivity & Precision \\
+\midrule
+Logit & 0.703 & 0.022 & 3.103\% & 2.562\% \\
+Random Forest & 0.709 & 0.063 & 7.177\% & 5.714\% \\
+XGBoost & 0.713 & 0.070 & 8.121\% & 6.546\% \\
+SVM & 0.708 & 0.027 & 3.084\% & 2.285\% \\
+SVM-FK & 0.503 & 0.010 & 1.321\% & 1.130\% \\
+RUSBoost & 0.690 & 0.022 & 2.265\% & 1.997\% \\
+\bottomrule
 \end{tabular}
 \label{tab1}
-\end{center}
 \end{table}
+
 
 \begin{figure}[htbp]
 \centerline{\includegraphics{fig1.png}}
@@ -231,7 +278,10 @@ Filler
 \section{Next Steps}
 
 \subsection{Proposed Methods}
-
+	\subsubsection{Transformer Architecture} Filler
+	\subsubsection{OpenAI-Based Model} Filler
+	\subsubsection{LLaMA (Meta)} Filler
+	
 \section*{Acknowledgment}
 
 The preferred spelling of the word ``acknowledgment'' in America is without 
