@@ -121,4 +121,4 @@ for year in range(2003, 2009):
 
 print(results)
 
-results.to_csv('~/GraLNA/New/RandomForest/RandomForest_results28.csv', index=False)
+results.to_csv('~/GraLNA/New/RF/RandomForest_results28.csv', index=False)
