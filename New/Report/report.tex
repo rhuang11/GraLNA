@@ -231,22 +231,6 @@ Due to the imbalance of our dataset, running standard machine learning methods w
 \item \textbf{Robustness and Adaptability}: Random Forest demonstrates robust performance across different feature sets, indicating its adaptability and ability to generalize well. In contrast, methods like Logit and SVM show more variability and are less robust to changes in the feature set.
 \item \textbf{Sensitivity to Imbalanced Data}: Methods like RUSBoost, specifically address the class imbalance, show marked improvements in sensitivity and precision, critical for financial prediction tasks where the minority class (e.g., financial distress) is often of most significant interest.
  \end{itemize} These preliminary results highlight the importance of method selection and feature engineering in financial prediction. Ensemble methods, particularly Random Forest and RUSBoost, demonstrate superior performance and robustness while introducing additional financial ratios, which presents opportunities and challenges. Our future research will focus more on optimizing feature selection and exploring LLMs to introduce new features that may increase the performance of these models. 
- 
-
-\begin{table}[H]
-\caption{Reported Evaluation Metrics for the Test Period 2003-08 \newline Input: 28 Financial Variables}
-\centering
-\begin{tabular}{p{2.495cm}cccc}
-\toprule
-\textbf{Method} & \textbf{AUC} & \textbf{NDCG@k} & \textbf{Sensitivity} & \textbf{Precision} \\
-\midrule
-\raggedright (1) Logit & 0.690 & 0.006 & 0.73\% & 0.85\% \\
-\raggedright (2) RUSBoost & 0.725 & 0.049 & 4.88\% & 4.48\% \\
-\raggedright (3) SVM & 0.680 & 0.016 & 1.69\% & 1.90\% \\
-\bottomrule
-\end{tabular}
-\label{tab:performance}
-\end{table}
 
 
 \begin{table}[H]
@@ -283,23 +267,10 @@ Due to the imbalance of our dataset, running standard machine learning methods w
 \end{tabular}
 \end{table}
 
+
+
 \begin{table}[H]
 \caption{Percentage Change From Table IV to Table V}
-\centering
-\begin{tabular}{p{2.295cm}ccccc}
-\toprule
-\textbf{Method} & \textbf{AUC} & \textbf{NDCG@k} & \textbf{Sensitivity} & \textbf{Precision} \\
-\midrule
-\raggedright (1) Logit & -7.25\% & 350.00\% & 358.22\% & 234.71\% \\
-\raggedright (2) RUSBoost & 6.21\% & 4.08\% & 1.70\% & 13.82\% \\
-\raggedright (3) SVM & -6.18\% & 50.00\% & 80.89\% & 34.84\% \\
-
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{table}[H]
-\caption{Percentage Change From Table V to Table VI}
 \centering
 \begin{tabular}{p{2.295cm}cccc}
 \toprule
@@ -341,5 +312,35 @@ The New York Review of Books, January 9, 2014.
 \bibitem{b7} Yang Bao, Bin Ke, Bin Li, Julia Yu, and Jie Zhang (2020). Detecting Accounting Fraud in Publicly Traded U.S. Firms Using a Machine Learning Approach. Journal of Accounting Research, 58 (1): 199-235.
 \end{thebibliography}
 
+\newpage
+\section*{Appendix}
+\begin{table}[H]
+\caption{Reported Evaluation Metrics for the Test Period 2003-08 \newline Input: 28 Financial Variables}
+\centering
+\begin{tabular}{p{2.495cm}cccc}
+\toprule
+\textbf{Method} & \textbf{AUC} & \textbf{NDCG@k} & \textbf{Sensitivity} & \textbf{Precision} \\
+\midrule
+\raggedright (1) Logit & 0.690 & 0.006 & 0.73\% & 0.85\% \\
+\raggedright (2) RUSBoost & 0.725 & 0.049 & 4.88\% & 4.48\% \\
+\raggedright (3) SVM & 0.680 & 0.016 & 1.69\% & 1.90\% \\
+\bottomrule
+\end{tabular}
+\label{tab:performance}
+\end{table}
+\begin{table}[H]
+\caption{Percentage Change From Table VII to Table IV}
+\centering
+\begin{tabular}{p{2.295cm}ccccc}
+\toprule
+\textbf{Method} & \textbf{AUC} & \textbf{NDCG@k} & \textbf{Sensitivity} & \textbf{Precision} \\
+\midrule
+\raggedright (1) Logit & -7.25\% & 350.00\% & 358.22\% & 234.71\% \\
+\raggedright (2) RUSBoost & 6.21\% & 4.08\% & 1.70\% & 13.82\% \\
+\raggedright (3) SVM & -6.18\% & 50.00\% & 80.89\% & 34.84\% \\
+
+\bottomrule
+\end{tabular}
+\end{table}
 
 \end{document}
