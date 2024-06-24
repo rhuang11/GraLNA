@@ -5,14 +5,18 @@
 \usepackage{graphicx}
 \usepackage{textcomp}
 \usepackage{xcolor}
+\usepackage{float}
 \usepackage{booktabs}
+\setlength{\floatsep}{0pt}
+\setlength{\intextsep}{0pt}
+
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 \begin{document}
 
-\title{Detecting Fraud and Misstatements in Annual Financial Statement Reports}
+\title{Financial Statement Fraud Detection Using Large Language Models}
 
-\author{\IEEEauthorblockN{Ryan Huang}\IEEEauthorblockA{\textit{Department of Computer Science}\\\textit{Department of Economics}\\\textit{University of North Carolina at Chapel-Hill}\\Chapel Hill, USA\\rhuang1@unc.edu}\and
+\author{\IEEEauthorblockN{Ryan Huang}\IEEEauthorblockA{\textit{Department of Computer Science}\\\textit{Department of Economics}\\\textit{UNC Chapel-Hill}\\Chapel Hill, USA\\rhuang1@unc.edu}\and
 \IEEEauthorblockN{Chunjiang Zhu}
 \IEEEauthorblockA{\textit{Department of Computer Science} \\
 \textit{UNC Greensboro}\\
@@ -29,195 +33,46 @@ q\_tong@uncg.edu}
 
 \maketitle
 
-\begin{abstract} We develop a new fraud detection model that builds upon existing machine learning methods and incorporates recent technological advances in the Large Language Model field such as LLaMA3 and GPT-4o. We demonstrate that combining deep learning knowledge with domain knowledge is beneficial towards fraud detection. We differ from previous research by using textual and linguistic data from annual 10-k financial statements in addition to the raw accounting numbers. 
+\begin{abstract} We develop a new fraud detection model incorporating recent technological advances in Large Language Models such as LLaMA3 and GPT-4o. We demonstrate that combining deep learning knowledge with domain knowledge benefits fraud detection. We differ from previous research by using large language models to analyze financial, textual, and linguistic data from annual 10-k financial statements.
 \end{abstract}
 
 \begin{IEEEkeywords}
-Fraud Detection, Large Language Models, Neural Networks, Machine Learning
+Fraud Detection, Large Language Models, Machine Learning
 \end{IEEEkeywords}
 
 \section{Introduction}
-This document is a model and instructions for \LaTeX.
-Please observe the conference page limits. 
+Fraud is a global issue that spans various industries, and when left unchecked, it can cause serious harm to stakeholders, employees, and other affiliates. Financial fraudulent activities worldwide have amounted to \$5.127 trillion, with most of the increase in the past ten years \cite{b5}. However, with the rise of artificial intelligence usage in businesses in the past five years, that number is almost certain to rise further and cause more damage. Financial statement fraud, however, is challenging to detect and prevent. Typically, there are 40-50 cases a year and even those that are detected end up being detected years after the fraud had been committed \cite{b4}. Standard machine learning models have proven to have good accuracy but need to catch up in correctly predicting the right firms to be fraudulent. With recent technological advances in large language models, more effective methods would be invaluable to regulators, auditors, and investors. \newline\indent Our study aims to develop a new dataset and new financial statement fraud detection model using available information from the SEC financial statements and the Accounting and Auditing Enforcement Releases (AAERs). We differ from Bao et al. in that we do not limit ourselves to only financial data. We will model our model after Chen, Kelly, and Xiu \cite{b2}. They leverage the LLMs such as GPT and LLaMA to analyze all news data to predict stock returns. In the scope of this study, there is little existing literature on using LLMs to analyze financial text, voice, and facial expression data. We provide an implementation using LLMs to improve on existing machine learning results. Similarly to Bao et al., we seek to explain fraud out-of-sample, essentially making this a prediction problem, rather than the standard causal inference problem such as in Dechow et al. \cite{b3}. \newline\indent We use five types of fraud prediction models from previous literature as benchmarks: logistic regression, random forest, SVM, XGBoost, and RUSBoost. We use similar performance evaluation metrics as Bao et al. \cite{b7} to assess the performance of these models. These will be discussed in section IV of the paper. First, we use the area under the Receiver Operating Characteristics (ROC) curve (AUC). We also use the Normalized Discounted Cumulative Gain at the position $k$ (NDCG\@k). Thirdly, we modify our measures of sensitivity and precision to reflect the top 1\% of predicted fraudulent companies probability. \newline\indent An exciting question is whether adding more features to our models will improve the performance. Once the LLM is implemented, we must re-evaluate existing machine learning models with the new data. We will also perform a more in-depth analysis of the most important financial variables and ratios based on more current literature. With only 28 financial variables and 14 financial ratios, we do not see the performance increasing significantly unless more information is given about the companies (i.e., MD\&A, earnings call data, etc.). Our study will join an extremely small area of financial literature incorporating LLMs to predict financial statement fraud out of sample. Studies like Chen, Kelly, Xiu \cite{b2} have paved the way for using LLMs in financial research. Some of the preliminary results raise the possibility that the LLMs could further improve the precision of machine learning models in fraud detection in financial statements. 
 
 \section{Background}
-Filler text for now.
 
-\section{Motivation}
+One of the most common accounting principles is the fraud triangle, proposed by Cressey in the 1970s. It consists of three components: perceived financial need, opportunity, and rationalization \cite{b8}. Most companies expect significant returns while putting in the minimum effort to maximize their scarce resources. Fraudulent activities are often only discovered after whistleblower tips to the SEC. While fraudulent activities may seem one-dimensional on the surface, there are many indirect costs associated with fraud, including loss of reputation, productivity loss, and irreversible financial damage to employees of the firm that is committing fraud. 
 
-The IEEEtran class file is used to format your paper and style the text. All margins, 
-column widths, line spaces, and text fonts are prescribed; please do not 
-alter them. You may note peculiarities. For example, the head margin
-measures proportionately more than is customary. This measurement 
-and others are deliberate, using specifications that anticipate your paper 
-as one part of the entire proceedings, and not as an independent document. 
-Please do not revise any of the current designations.
-
-\section{Methodology} We use 
-
-\subsection{Machine Learning Methods} 
-\subsubsection{Logistic Regression} 
-\subsubsection{Random Forest}
-\subsubsection{SVM}
-\subsubsection{XGBoost}
-\subsubsection{RUSBoost}
-\subsection{Deep Learning Methods}
-\subsubsection{Hierarchical Attention Network (HAN)}
-\subsubsection{Long Short-Term Memory (LSTM)}
-\subsubsection{Multi-layer Perceptron (MLP)}
-\subsection{Large-Language Models (LLMs)}
-\subsubsection{GPT-4}
-\subsubsection{FinBERT}
-\subsubsection{LLaMA3}
-\section{Data}
-Before you begin to format your paper, first write and save the content as a 
-separate text file. Complete all content and organizational editing before 
-formatting. Please note sections \ref{AA}--\ref{SCM} below for more information on 
-proofreading, spelling and grammar.
-
-Keep your text and graphic files separate until after the text has been 
-formatted and styled. Do not number text heads---{\LaTeX} will do that 
-for you.
-
-\subsection{Abbreviations and Acronyms}\label{AA}
-Define abbreviations and acronyms the first time they are used in the text, 
-even after they have been defined in the abstract. Abbreviations such as 
-IEEE, SI, MKS, CGS, ac, dc, and rms do not have to be defined. Do not use 
-abbreviations in the title or heads unless they are unavoidable.
-
-\begin{table}[htbp]
-\caption{Financial Variables}
-\centering
-\begin{tabular}{@{}p{3.4cm}p{5cm}@{}} 
-\toprule
-\textbf{\hspace{5mm}Abbreviation} & \textbf{Financial Variable\hspace{5mm}} \\
-\midrule
-\hspace{5mm}ACT & Total Current Assets\hspace{5mm} \\
-\hspace{5mm}AT & Total Assets\hspace{5mm} \\
-\hspace{5mm}AP & Accounts Payable\hspace{5mm} \\
-\hspace{5mm}CEQ & Common Equity\hspace{5mm} \\
-\hspace{5mm}CHE & Cash\hspace{5mm} \\
-\hspace{5mm}COGS & Cost of Goods Sold\hspace{5mm} \\
-\hspace{5mm}CSHO & Common Shares Outstanding\hspace{5mm} \\
-\hspace{5mm}DLC & Current Debt\hspace{5mm} \\
-\hspace{5mm}DLTT & Long Term Debt\hspace{5mm} \\
-\hspace{5mm}DP & Depreciation\hspace{5mm} \\
-\hspace{5mm}IB & Income Before Extraordinary Items\hspace{5mm} \\
-\hspace{5mm}INVT & Inventories\hspace{5mm} \\
-\hspace{5mm}IVAO & Investments Advances Other\hspace{5mm} \\
-\hspace{5mm}IVST & Short Term Investments\hspace{5mm} \\
-\hspace{5mm}LCT & Current Liabilities\hspace{5mm} \\
-\hspace{5mm}LT & Total Liabilities\hspace{5mm} \\
-\hspace{5mm}NI & Net Income\hspace{5mm} \\
-\hspace{5mm}PPEGT & Gross Property Plant Equipment\hspace{5mm} \\
-\hspace{5mm}PSTK & Preferred Stock\hspace{5mm} \\
-\hspace{5mm}RE & Retained Earnings\hspace{5mm} \\
-\hspace{5mm}RECT & Receivables\hspace{5mm} \\
-\hspace{5mm}SALE & Sales\hspace{5mm} \\
-\hspace{5mm}SEQ & Stockholders Equity\hspace{5mm} \\
-\hspace{5mm}TXT & Income Tax\hspace{5mm} \\
-\hspace{5mm}XINT & Interest Expense\hspace{5mm} \\
-\bottomrule
-\end{tabular}
-\label{tab1}
-\end{table}
-
-
-\subsection{Units}
-\begin{itemize}
-\item Use either SI (MKS) or CGS as primary units. (SI units are encouraged.) English units may be used as secondary units (in parentheses). An exception would be the use of English units as identifiers in trade, such as ``3.5-inch disk drive''.
-\item Avoid combining SI and CGS units, such as current in amperes and magnetic field in oersteds. This often leads to confusion because equations do not balance dimensionally. If you must use mixed units, clearly state the units for each quantity that you use in an equation.
-\item Do not mix complete spellings and abbreviations of units: ``Wb/m\textsuperscript{2}'' or ``webers per square meter'', not ``webers/m\textsuperscript{2}''. Spell out units when they appear in text: ``. . . a few henries'', not ``. . . a few H''.
-\item Use a zero before decimal points: ``0.25'', not ``.25''. Use ``cm\textsuperscript{3}'', not ``cc''.)
-\end{itemize}
-
-\subsection{Equations}
-Number equations consecutively. To make your 
-equations more compact, you may use the solidus (~/~), the exp function, or 
-appropriate exponents. Italicize Roman symbols for quantities and variables, 
-but not Greek symbols. Use a long dash rather than a hyphen for a minus 
-sign. Punctuate equations with commas or periods when they are part of a 
-sentence, as in:
-\begin{equation}
-a+b=\gamma\label{eq}
-\end{equation}
-
-
-
-Be sure that the 
-symbols in your equation have been defined before or immediately following 
-the equation. Use ``\eqref{eq}'', not ``Eq.~\eqref{eq}'' or ``equation \eqref{eq}'', except at 
-the beginning of a sentence: ``Equation \eqref{eq} is . . .''
-
-\subsection{Challenges}
-
-\begin{figure}[htbp]
-\centerline{\includegraphics[width=\columnwidth]{fraud_peryear}}
-\caption{Example of a figure caption.}
+\section{Methodology} We use several machine learning methods outlined in Bao et al. \cite{b7} and choose other common methods to experiment on fraud datasets. We adjust the hyper-parameters to tune the model performance. We use the public dataset from Bao et al. \cite{b7} and conduct our baseline analysis on their data. For the initial testing year 2003, we used 1991-2001 as the training set and 2002 as a validation set to tune our models. For each additional year after 2003 up until our last sample test year of 2008, we increase the training and validation sets by one year to increase model performance. For example, for the test year 2008, we use 1991-2006 as the training set, and validate on 2007. Dyck, Morse, and Zingales \cite{b4} find it takes, on average, two years for fraudulent activities to be discovered, hence the two-year gap between the training set and test set. Additionally, we set the $random\_state$ to be 42 for ease of recreatibility. We also normalize the features for easier interpretability. Fig. 1 shows the overall methodology for our experiment. \vspace{10pt} \begin{figure}[H]
+\centerline{\includegraphics[width=\columnwidth]{mlmethod}}
+\caption{Figure of Experiment}
 \label{fig}
 \end{figure}
+\vspace{10pt}We describe the parameters of our experiments below:\subsection{Machine Learning Methods} 
+\subsubsection{Logistic Regression} We leverage the standard logistic regression model to predict fraud probabilities. We employ a class weight ratio to deal with the imbalance in the dataset, calculated by taking the ratio of fraudulent instances to non-fraudulent instances. We then pick those firms above a threshold and classify them as fraudulent. 
+\subsubsection{Random Forest} We use a standard Random Forest classifier by tuning the following hyper-parameters: $n\_estimators, class\_weight,$ and $max\_depth$. We use the validation set and GridSearch to find the optimal parameters that maximize AUC. We employ the same class weight ratio from logistic regression to handle imbalanced data.
+\subsubsection{SVM} We optimize our SVM model by picking a C, which is the cost ratio of misclassifying fraud and non-fraud. The financial kernel from Cecchini et al. \cite{b1} takes advantage of the raw financial data by mapping it into pre-defined ratios, typically intrayear and year-to-year change ratios. We choose not to use it because of the difficulty of implementation and the lack of performance gains over the standard SVM model.
+\subsubsection{XGBoost} Similar to Random Forest, we perform a GridSearch for the optimal parameters. We optimize for AUC by adjusting $max\_depth, learning\_rate,$ and $n\_estimators$, where $learning\_rate$ scales the prediction of each weak learner. 
+\subsubsection{RUSBoost} We use the random undersampling package in Python to undersample the majority class so that the input is a matched set of fraud and non-fraudulent observations. We train the matched sample through a weak classifier, which will give a correct or incorrect classification. If the weak classifier is incorrect, the weight of the incorrect observation will be increased and vice versa. Once we iterate over and over, we apply a error rate-based weight on each weak classifier and take a weighted average to build a strong classifier to predict. This is depicted in Fig. 2: \begin{figure}[H] \vspace{10pt}
+\centerline{\includegraphics[width=\columnwidth]{rusboost}}
+\caption{Depiction of RUSBoost model. The top half repeats itself, and the bottom half takes a weighted average of all the weak classifiers from the top.}
+\label{fig}
+\end{figure} \vspace{10pt}
+\section{Data}
+We use the public dataset compiled from Detecting Accounting Fraud in Publicly Traded U.S. Firms Using a Machine Learning Approach. We will refer to this dataset as the JAR dataset in the rest of the paper. They use financial data from Compustat to create the dataset. The dataset consists of two unique identifier variables for each firm: $fyear$ and $gvkey$. The $gvkey$, or Global Company Key, is a six-digit code assigned to each firm in the Compustat database.  For the fraud label, they track the case number from the SEC AAER database, which contains a list of all firms that have been audited or investigated for fraud. This is represented by $p\_aaer$ in the public dataset, and for every instance of a case number, the label we are predicting, $misstate$, is equal to one. The main features of the public dataset consist of a pairing of 28 financial variables with 14 financial ratios. As the paper we are basing our study on is from 2019, the dataset only consists of cases up until 2018 and needs to be completed. However, we only used the 1991-2008 sample period for our initial testing. The sample began in 1991 due to the stricter enforcement of accounting fraud. The sample ends in 2008 due to the reduction of accounting fraud enforcement due to the higher probability of accounting fraud cases going undetected post-2008 \cite{b6}.  
 
-Please use ``soft'' (e.g., \verb|\eqref{Eq}|) cross references instead
-of ``hard'' references (e.g., \verb|(1)|). That will make it possible
-to combine sections, add equations, or change the order of figures or
-citations without having to go through the file line by line.
-
-Please don't use the \verb|{eqnarray}| equation environment. Use
-\verb|{align}| or \verb|{IEEEeqnarray}| instead. The \verb|{eqnarray}|
-environment leaves unsightly spaces around relation symbols.
-
-Please note that the \verb|{subequations}| environment in {\LaTeX}
-will increment the main equation counter even when there are no
-equation numbers displayed. If you forget that, you might write an
-article in which the equation numbers skip from (17) to (20), causing
-the copy editors to wonder if you've discovered a new method of
-counting.
-
-{\BibTeX} does not work by magic. It doesn't get the bibliographic
-data from thin air but from .bib files. If you use {\BibTeX} to produce a
-bibliography you must send the .bib files. 
-
-{\LaTeX} can't read your mind. If you assign the same label to a
-subsubsection and a table, you might find that Table I has been cross
-referenced as Table IV-B3. 
-
-{\LaTeX} does not have precognitive abilities. If you put a
-\verb|\label| command before the command that updates the counter it's
-supposed to be using, the label will pick up the last counter to be
-cross referenced instead. In particular, a \verb|\label| command
-should not go before the caption of a figure or a table.
-
-Do not use \verb|\nonumber| inside the \verb|{array}| environment. It
-will not stop equation numbers inside \verb|{array}| (there won't be
-any anyway) and it might stop a wanted equation number in the
-surrounding equation.
-
-\subsection{Some Common Mistakes}\label{SCM}
-\begin{itemize}
-\item The word ``data'' is plural, not singular.
-\item The subscript for the permeability of vacuum $\mu_{0}$, and other common scientific constants, is zero with subscript formatting, not a lowercase letter ``o''.
-\item In American English, commas, semicolons, periods, question and exclamation marks are located within quotation marks only when a complete thought or name is cited, such as a title or full quotation. When quotation marks are used, instead of a bold or italic typeface, to highlight a word or phrase, punctuation should appear outside of the quotation marks. A parenthetical phrase or statement at the end of a sentence is punctuated outside of the closing parenthesis (like this). (A parenthetical sentence is punctuated within the parentheses.)
-\item A graph within a graph is an ``inset'', not an ``insert''. The word alternatively is preferred to the word ``alternately'' (unless you really mean something that alternates).
-\item Do not use the word ``essentially'' to mean ``approximately'' or ``effectively''.
-\item In your paper title, if the words ``that uses'' can accurately replace the word ``using'', capitalize the ``u''; if not, keep using lower-cased.
-\item Be aware of the different meanings of the homophones ``affect'' and ``effect'', ``complement'' and ``compliment'', ``discreet'' and ``discrete'', ``principal'' and ``principle''.
-\item Do not confuse ``imply'' and ``infer''.
-\item The prefix ``non'' is not a word; it should be joined to the word it modifies, usually without a hyphen.
-\item There is no period after the ``et'' in the Latin abbreviation ``et al.''.
-\item The abbreviation ``i.e.'' means ``that is'', and the abbreviation ``e.g.'' means ``for example''.
-\end{itemize}
-An excellent style manual for science writers is \cite{b7}.
-
-\subsection{Authors and Affiliations}
-\textbf{The class file is designed for, but not limited to, six authors.} A 
-minimum of one author is required for all conference articles. Author names 
-should be listed starting from left to right and then moving down to the 
-next line. This is the author sequence that will be used in future citations 
-and by indexing services. Names should not be listed in columns nor group by 
-affiliation. Please keep your affiliations as succinct as possible (for 
-example, do not differentiate among departments of the same organization).
-
-\begin{table}[htbp]
+\subsection{Data Distribution}
+The total number of fraud instances in the JAR dataset is 964, and the total number of non-fraudulent instances is 145,081, summing up to 146,045 entries total. We also plot the distribution of the number of fraud cases per year and find that it follows a relatively normal distribution with a peak in fraud cases in the 2000-2003 range. When we look at the unique number of fraud cases per year, we find that the shape of the distribution of fraud cases per year is similar, but there are significantly fewer cases in the peak years (2000-2003). Table I displays the most common offenders within the dataset. Figure III shows the number of fraud cases per year with the number of total fraud cases overlapping the number of unique fraud cases per year. \vspace{10pt}
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=\columnwidth]{fraudoverlap}}
+\caption{The blue bars are new cases for every year, and the red bars represent the total number of fraud cases, including repeat offenders.}
+\label{fig}
+\end{figure} \vspace{10pt}
+\begin{table}[H]
 \caption{Repeat Offenders Frequency}
 \centering
 \begin{tabular}{@{}p{6.3cm}p{2.1cm}@{}} 
@@ -247,121 +102,245 @@ example, do not differentiate among departments of the same organization).
 \hspace{5mm}Cummins Inc & 6\hspace{5mm} \\
 \hspace{5mm}UCI Medical Affiliates Inc & 6\hspace{5mm} \\
 \hspace{5mm}Brooks Automation Inc & 6\hspace{5mm} \\
-\hspace{5mm}Fortune Brands Inc & 6\hspace{5mm} \\
-\hspace{5mm}Thor Industries Inc & 6\hspace{5mm} \\
-\hspace{5mm}Safenet Inc & 6\hspace{5mm} \\
-\hspace{5mm}Utstarcom Inc & 6\hspace{5mm} \\
+\bottomrule
+\end{tabular}
+\label{tab1}
+\end{table} \vspace{10pt}\subsection{Features}
+We use a list of raw financial variables selected by Bao et al. \cite{b7} based on Cecchini et al. \cite{b1} and Dechow et al. \cite{b3}, compiled from the Compustat database. The final dataset from Bao et al., which we use in this study for a baseline, contains 28 financial variables and 14 financial ratios, which are abbreviated for convenience in Table II and III: \vspace{10pt}
+
+\label{AA}
+\begin{table}[htbp]
+\caption{28 Financial Variables}
+\centering
+\begin{tabular}{@{}p{3.4cm}p{5cm}@{}} 
+\toprule
+\textbf{\hspace{5mm}Abbreviation} & \textbf{Financial Variable\hspace{5mm}} \\
+\midrule
+\hspace{5mm}ACT & Current Assets, Total\hspace{5mm} \\
+\hspace{5mm}AP & Accounts Payable Trade\hspace{5mm} \\
+\hspace{5mm}AT & Assets, Total\hspace{5mm} \\
+\hspace{5mm}CEQ & Common/Ordinary Equity, Total\hspace{5mm} \\
+\hspace{5mm}CHE & Cash and Short-Term Investments\hspace{5mm} \\
+\hspace{5mm}COGS & Cost of Goods Sold\hspace{5mm} \\
+\hspace{5mm}CSHO & Common Shares Outstanding\hspace{5mm} \\
+\hspace{5mm}DLC & Debt in Current Liabilities, Total\hspace{5mm} \\
+\hspace{5mm}DLTIS & Long-Term Debt Insurance\hspace{5mm} \\
+\hspace{5mm}DLTT & Long-Term Debt, Total\hspace{5mm} \\
+\hspace{5mm}DP & Depreciation and Amortization\hspace{5mm} \\
+\hspace{5mm}IB & Income Before Extraordinary Items\hspace{5mm} \\
+\hspace{5mm}INVT & Inventories, Total\hspace{5mm} \\
+\hspace{5mm}IVAO & Investments Advances, Other\hspace{5mm} \\
+\hspace{5mm}IVST & Short Term Investments, Total\hspace{5mm} \\
+\hspace{5mm}LCT & Current Liabilities, Total\hspace{5mm} \\
+\hspace{5mm}LT & Liabilities, Total\hspace{5mm} \\
+\hspace{5mm}NI & Net Income (Loss)\hspace{5mm} \\
+\hspace{5mm}PPEGT & Property, Plant, and Equipment, Total\hspace{5mm} \\
+\hspace{5mm}PSTK & Preferred/Preference Stock (Capital), Total \\
+\hspace{5mm}RE & Retained Earnings\hspace{5mm} \\
+\hspace{5mm}RECT & Receivables, Total\hspace{5mm} \\
+\hspace{5mm}SALE & Sales/Turnover (Net)\hspace{5mm} \\
+\hspace{5mm}SSTK & Sale of Common and Preferred Stock\hspace{5mm} \\
+\hspace{5mm}TXP & Income Taxes Payable\hspace{5mm} \\
+\hspace{5mm}TXT & Income Taxes, Total\hspace{5mm} \\
+\hspace{5mm}XINT & Interest and Related Expense, Total\hspace{5mm} \\
+\hspace{5mm}PRCC\_F & Price Close, Annual, Fiscal\hspace{5mm} \\
 \bottomrule
 \end{tabular}
 \label{tab1}
 \end{table}
+\vspace{10pt}
+\begin{table}[htbp]
+\caption{14 Financial Ratios}
+\centering
+\begin{tabular}{@{}p{2.3cm}p{6.1cm}@{}} 
+\toprule
+\textbf{\hspace{5mm}Abbreviation} & \textbf{Financial Variable\hspace{5mm}} \\
+\midrule
+\hspace{5mm}DCH\_WC & WC Accruals\hspace{3mm} \\
+\hspace{5mm}CH\_RSST & RSST Accruals\hspace{3mm} \\
+\hspace{5mm}DCH\_REC & Change in Receivables\hspace{5mm} \\
+\hspace{5mm}DCH\_INV & Change in Inventory\hspace{5mm} \\
+\hspace{5mm}SOFT\_ASSET & \% Soft Assets \hspace{5mm} \\
+\hspace{5mm}DPI & Depreciation Index\hspace{5mm} \\
+\hspace{5mm}CH\_CS & Change in Cash Sales\hspace{5mm} \\
+\hspace{5mm}CH\_CM & Change in Cash Margin\hspace{5mm} \\
+\hspace{5mm}CH\_ROA & Change in Return on Assets\hspace{5mm} \\
+\hspace{5mm}CH\_FCF & Change in Free Cash Flows\hspace{5mm} \\
+\hspace{5mm}REOA & Retained Earnings Over Total Assets\hspace{5mm} \\
+\hspace{5mm}EBIT & Earnings Before Interest and Taxes Over Total Assets \\
+\hspace{5mm}ISSUE & Actual Issuance\hspace{5mm} \\
+\hspace{5mm}BM & Book-to-Market\hspace{5mm} \\
+\bottomrule
+\end{tabular}
+\label{tab1}
+\end{table} \vspace{10pt}
 
-
-
-
-\subsection{Identify the Headings}
-Headings, or heads, are organizational devices that guide the reader through 
-your paper. There are two types: component heads and text heads.
-
-Component heads identify the different components of your paper and are not 
-topically subordinate to each other. Examples include Acknowledgments and 
-References and, for these, the correct style to use is ``Heading 5''. Use 
-``figure caption'' for your Figure captions, and ``table head'' for your 
-table title. Run-in heads, such as ``Abstract'', will require you to apply a 
-style (in this case, italic) in addition to the style provided by the drop 
-down menu to differentiate the head from the text.
-
-Text heads organize the topics on a relational, hierarchical basis. For 
-example, the paper title is the primary text head because all subsequent 
-material relates and elaborates on this one topic. If there are two or more 
-sub-topics, the next level head (uppercase Roman numerals) should be used 
-and, conversely, if there are not at least two sub-topics, then no subheads 
-should be introduced.
-
-
-\subsection{Figures and Tables}
-\paragraph{Positioning Figures and Tables} Place figures and tables at the top and 
-bottom of columns. Avoid placing them in the middle of columns. Large 
-figures and tables may span across both columns. Figure captions should be 
-below the figures; table heads should appear above the tables. Insert 
-figures and tables after they are cited in the text. Use the abbreviation 
-``Fig.~\ref{fig}'', even at the beginning of a sentence.
-
-\begin{figure}[htbp]
-\centerline{\includegraphics[width=\columnwidth]{unique_fraud}}
-\caption{Example of a figure caption.}
-\label{fig}
-\end{figure}
 
 \section{Performance Evaluation Metrics}
 
-\begin{table}[htbp]
-\caption{Performance Evaluation Metrics for the Test Period 2003-08}
+Due to the imbalance of our dataset, running standard machine learning methods will result in many false positives. Similarly, if we consider the reality, auditors cannot and will not audit every company. That would take too many resources, and even then, they still may not be accurate in detecting fraud. Therefore, we use the AUC, Precision, Sensitivity, and NCDG@k as defined below from Bao et al. \vspace{10pt}\begin{figure}[!htbp]
+	\centerline{\includegraphics[width=\columnwidth]{roc}}
+	\caption{ROC curve for Random Forest, Test Year = 2003}
+	\label{fig}
+	\end{figure}\vspace{10pt}\subsubsection{AUC} The standard performance metric is accuracy which is defined as $\frac{TP+TN}{TP+FN+FP+TN}$, where $TP$ is when the model correctly classifies the firm as a fraud; $TN$ is when the model correctly classifies the firm as non-fraudulent; $FP$ is when the model classifies a firm as fraudulent, but it is not; and $FN$ is when the model does not classify a firm as fraudulent when it should be. On the other hand, AUC relies on the true and false positive rates, such as the ROC curve, which shows a classifier's performance at a certain threshold. In our study, anything below 0.5 should not be feasible since a random guess results in an AUC of 0.5. On the other hand, a perfect AUC is 1.0 and should be very rare. The AUC is the probability that the classifier will rank a true positive higher than a non-fraudulent firm \cite{b9}. As shown in Fig. 4, our random forest model performs quite well with an AUC of 0.8037. The optimal ROC curve is when the true positive rate is maximized, and the false positive rate is minimized.
+
+	\subsubsection{NDCG@k} Bao et al. considers the fraud prediction task as a ranking problem. They use a discounted cumulative gain function to limit the out-of-sample performance evaluation to only the firms with the highest predicted probability of fraud. The DCG@k scores a fraudulent instance higher than a non-fraudulent instance. The DCG@k is then normalized by the ideal DCG@k, where the ideal is defined by all the true instances of fraud being ranked at the top. Formally, this is: \vspace{10pt}\begin{figure}[H]
+	\centerline{\includegraphics[width=\columnwidth]{ndcg}}
+	\caption{Formula for DCG@k and NDCG@k}
+	\label{fig}
+	\end{figure} 
+	\subsubsection{Sensitivity and Precision} From the NDCG@k, we also modify the sensitivity and precision metrics to follow the same methodology as NDCG@k. Rather than consider all the true positive firms, we consider only the top 1\% of firms with the highest predicted probability of committing fraud. This is more accurate for our results because of the imbalance of data. Formally, this is: \vspace{10pt}\begin{figure}[H]
+	\centerline{\includegraphics[width=\columnwidth]{sensprec}}
+	\caption{Formula for Sensitivity and Precision}
+	\label{fig}
+	\end{figure} 
+	\subsubsection{Comparing Improved Metrics with Standard Metrics} We compare the accuracy and AUC, sensitivity and modified sensitivity, and recall and modified recall. The figures below are from running the Random Forest model on 28 financial variables. The training set is the firms in the years 1991-2001, the validation set is 2002, and the test set is 2003. In Fig. 7, we find that accuracy is much more inflated than AUC, which naturally makes sense because a 1:150 imbalance has a less than one percent chance of incorrectly classifying a non-fraudulent firm. Once we delve deeper into the data, we can see in Fig. 8 that our number of true positives is relatively low, and our number of false positives is very high. When comparing the improved sensitivity to the standard sensitivity in Fig. 11, our figure shows un-interpretable values at one extreme or the other (0 or 1) and does not align with the confusion matrix (tp, fp, fn, tn). The modified sensitivity is interpretable as it aligns with our confusion matrix. Our precision displays the same behavior in Fig. 10. \newline\indent When looking at NDCG@k, sensitivity, and precision (improved metrics) in Fig. 9, the shape of the graphs shows a similar behavior. \vspace{15pt}
+	\begin{figure}[H]
+	\centerline{\includegraphics[width=\columnwidth]{output}}
+	\caption{Accuracy vs AUC}
+	\label{fig}
+	\end{figure} \vspace{15pt}
+		\begin{figure}[H]
+	\centerline{\includegraphics[width=\columnwidth]{output2}}
+	\caption{\# of True Positives, False Positives, False Negatives, Total}
+	\label{fig}
+	\end{figure} \vspace{15pt}
+			\begin{figure}[H]
+	\centerline{\includegraphics[width=\columnwidth]{output3}}
+	\caption{Improved Performance Evaluation Metrics}
+	\label{fig}
+	\end{figure} \vspace{15pt}
+				\begin{figure}[H]
+	\centerline{\includegraphics[width=\columnwidth]{output4}}
+	\caption{Precision vs Precision (top 1\%)}
+	\label{fig}
+	\end{figure} \vspace{15pt}
+					\begin{figure}[H]
+	\centerline{\includegraphics[width=\columnwidth]{output5}}
+	\caption{Sensitivity (Recall for Top 1\%) vs Recall}
+	\label{fig}
+	\end{figure} \vspace{15pt}
+
+\section{Preliminary Results} The preliminary results of our study, as shown in Tables IV-VII, provide an in-depth comparison of various machine learning methods applied to financial prediction tasks using different sets of input variables. By comparing methods across different input sets, we observe notable trends and patterns that shed light on the effectiveness of these techniques and the impact of additional financial ratios. The evaluation metrics considered are AUC (Area Under the Curve), NDCG@k (Normalized Discounted Cumulative Gain at rank k), Sensitivity, and Precision. \subsection{Bao et al. vs. our Results}Initially, the paper evaluates Logit, RUSBoost, and SVM using 28 financial variables. Among these, RUSBoost stands out with the highest AUC (0.725) and substantial improvements in sensitivity and precision. This suggests that RUSBoost, which balances class distributions through under-sampling, is particularly effective in handling the imbalanced nature of financial data, leading to more reliable predictions. Now compare this with our recreation. Table VII shows RUSBoost behaving similarly, with relatively little change in all performance metrics. Overall, we see slight differences in the AUC from our results and the results from Bao et al. However, when it comes to the other three metrics, we see they increase dramatically. We can attribute some of this increase to implementation differences, which we describe in detail how we leverage Logit and SVM to acquire the highest performance in all metrics. Expanding our methodology to include Random Forest and XGBoost in the second set of evaluations, we see significant enhancements in performance metrics: \begin{itemize} 
+\item Random Forest emerges as the top performer with an AUC of 0.798 and superior sensitivity and precision. This indicates its robustness in capturing complex patterns and interactions within the financial data, making it a highly effective method.
+\item XGBoost also demonstrates strong performance, though slightly trailing behind Random Forest. Its notable AUC and precision reflect its ability to handle large datasets with high dimensionality effectively \end{itemize}\subsection{Change in Input} When additional financial ratios are incorporated (Table VI), the performance of the models exhibits mixed results:\begin{itemize}
+\item Random Forest maintains a high AUC but experiences reductions in other metrics. This indicates that while the additional ratios provide new information, they might also introduce noise or redundancy, slightly hindering the model’s sensitivity and precision.
+\item XGBoost, on the other hand, shows a slight improvement in AUC, suggesting it can leverage the extra features to some extent, but like Random Forest, it faces a trade-off with sensitivity and precision. \end{itemize}\subsection{Main Takeaways} Overall, our preliminary finds underscore several key points: \begin{itemize} 
+\item \textbf{Model Selection}: The choice of the machine learning method significantly impacts the performance. RUSBoost, Random Forest and XGBoost consistently outperform Logit and SVM, highlighting the benefits of ensemble methods and advanced boosting techniques in financial predictions.
+\item \textbf{Feature Set Composition}: The introduction of additional financial ratios has a nuanced impact. While it can slightly enhance AUC, it often reduces sensitivity and precision. This suggests that while more features can provide more information, they also require careful selection and preprocessing to avoid diminishing returns or performance degradation due to overfitting or noise.
+\item \textbf{Robustness and Adaptability}: Random Forest demonstrates robust performance across different feature sets, indicating its adaptability and ability to generalize well. In contrast, methods like Logit and SVM show more variability and are less robust to changes in the feature set.
+\item \textbf{Sensitivity to Imbalanced Data}: Methods like RUSBoost, specifically address the class imbalance, show marked improvements in sensitivity and precision, critical for financial prediction tasks where the minority class (e.g., financial distress) is often of most significant interest.
+ \end{itemize} These preliminary results highlight the importance of method selection and feature engineering in financial prediction. Ensemble methods, particularly Random Forest and RUSBoost, demonstrate superior performance and robustness while introducing additional financial ratios, which presents opportunities and challenges. Our future research will focus more on optimizing feature selection and exploring LLMs to introduce new features that may increase the performance of these models. 
+
+
+\begin{table}[H]
+\caption{Performance Evaluation Metrics for the Test Period 2003-08 \newline Input: 28 Financial Variables}
+\centering
+\begin{tabular}{p{2.495cm}cccc}
+\toprule
+\textbf{Method} & \textbf{AUC} & \textbf{NDCG@k} & \textbf{Sensitivity} & \textbf{Precision} \\
+\midrule
+\raggedright (1) Logit & 0.640 & 0.027 & 3.345\% & 2.845\% \\
+\raggedright (2) Random Forest & 0.798 & 0.143 & 15.192\% & 11.706\% \\
+\raggedright (3) RUSBoost & 0.770 & 0.051 & 4.963\% & 5.099\% \\
+\raggedright (4) SVM & 0.638 & 0.024 & 3.057\% & 2.562\% \\
+\raggedright (5) XGBoost & 0.760 & 0.099 & 9.634\% & 7.687\% \\
+\bottomrule
+\end{tabular}
+\label{tab:performance}
+\end{table}
+
+\begin{table}[H]
+\caption{Performance Evaluation Metrics for the Test Period 2003-08 \newline Input: 28 Financial Variables + 14 Financial Ratios}
 \centering
 \begin{tabular}{p{2.495cm}cccc}
 \toprule
 \textbf{Method} & \textbf{AUC} & \textbf{NDCG@k} & \textbf{Sensitivity} & \textbf{Precision} \\
 \midrule
 \raggedright (1) Logit & 0.703 & 0.022 & 3.103\% & 2.562\% \\
-\raggedright (2) Random Forest & 0.709 & 0.063 & 7.177\% & 5.714\% \\
-\raggedright (3) XGBoost & 0.713 & 0.070 & 8.121\% & 6.546\% \\
+\raggedright (2) Random Forest & 0.790 & 0.084 & 7.689\% & 6.007\% \\
+\raggedright (3) RUSBoost & 0.751 & 0.029 & 2.996\% & 2.835\% \\
 \raggedright (4) SVM & 0.708 & 0.027 & 3.084\% & 2.285\% \\
-\raggedright (6) RUSBoost & 0.751 & 0.029 & 2.996\% & 2.835\% \\
+\raggedright (5) XGBoost & 0.713 & 0.070 & 8.121\% & 6.546\% \\
+
 \bottomrule
 \end{tabular}
 \end{table}
 
-Figure Labels: Use 8 point Times New Roman for Figure labels. Use words 
-rather than symbols or abbreviations when writing Figure axis labels to 
-avoid confusing the reader. As an example, write the quantity 
-``Magnetization'', or ``Magnetization, M'', not just ``M''. If including 
-units in the label, present them within parentheses. Do not label axes only 
-with units. In the example, write ``Magnetization (A/m)'' or ``Magnetization 
-\{A[m(1)]\}'', not just ``A/m''. Do not label axes with a ratio of 
-quantities and units. For example, write ``Temperature (K)'', not 
-``Temperature/K''.
-
-\section{Preliminary Results}
-Filler
-
-\section{Next Steps}
-
-\subsection{Proposed Methods}
-	\subsubsection{Transformer Architecture} Filler
-	\subsubsection{OpenAI-Based Model} Filler
-	\subsubsection{LLaMA (Meta)} Filler
-	
-\section*{Acknowledgment}
-
-The preferred spelling of the word ``acknowledgment'' in America is without 
-an ``e'' after the ``g''. Avoid the stilted expression ``one of us (R. B. 
-G.) thanks $\ldots$''. Instead, try ``R. B. G. thanks$\ldots$''. Put sponsor 
-acknowledgments in the unnumbered footnote on the first page.
-
-\section*{References}
-
-Please number citations consecutively within brackets \cite{b1}. The 
-sentence punctuation follows the bracket \cite{b2}. Refer simply to the reference 
-number, as in \cite{b3}---do not use ``Ref. \cite{b3}'' or ``reference \cite{b3}'' except at 
-the beginning of a sentence: ``Reference \cite{b3} was the first $\ldots$''
-
-Number footnotes separately in superscripts. Place the actual footnote at 
-the bottom of the column in which it was cited. Do not put footnotes in the 
-abstract or reference list. Use letters for table footnotes.
-
-Unless there are six authors or more give all authors' names; do not use 
-``et al.''. Papers that have not been published, even if they have been 
-submitted for publication, should be cited as ``unpublished'' \cite{b4}. Papers 
-that have been accepted for publication should be cited as ``in press'' \cite{b5}. 
-Capitalize only the first word in a paper title, except for proper nouns and 
-element symbols.
-
-For papers published in translation journals, please give the English 
-citation first, followed by the original foreign-language citation \cite{b6}.
 
 
-\vspace{12pt}
-\color{red}
-IEEE conference templates contain guidance text for composing and formatting conference papers. Please ensure that all template text is removed from your conference paper prior to submission to the conference. Failure to remove the template text from your paper may result in your paper not being published.
+\begin{table}[H]
+\caption{Percentage Change From Table IV to Table V}
+\centering
+\begin{tabular}{p{2.295cm}cccc}
+\toprule
+\textbf{Method} & \textbf{AUC} & \textbf{NDCG@k} & \textbf{Sensitivity} & \textbf{Precision} \\
+\midrule
+\raggedright (1) Logit & 9.84\% & -18.52\% & -9.95\% & -7.24\% \\
+\raggedright (2) Random Forest & -1.00\% & -41.26\% & -48.68\% & -49.39\% \\
+\raggedright (3) RUSBoost & -2.47\% & -43.14\% & -44.40\% & -39.63\% \\
+\raggedright (4) SVM & 10.97\% & 12.50\% & -10.81\% & 0.88\% \\
+\raggedright (5) XGBoost & -6.18\% & -29.29\% & -14.84\% & -15.71\% \\
+\bottomrule
+\end{tabular}
+\label{tab:performance}
+\end{table} \vspace{0.1pt}
+
+\section{Next Steps} We present an updated visualization to Fig. 1 with the implementation of LLMs in our next steps. \vspace{15pt}\begin{figure}[H]
+	\centerline{\includegraphics[width=\columnwidth]{llmmethod}}
+	\caption{Figure of Future Experiments}
+	\label{fig}
+	\end{figure} \vspace{15pt}
+\subsection{Dataset Expansion}
+We plan to increase the dataset's scope into the current year of study, 2024. That would bring valuable training data and present an opportunity to test our fraud detection model on previously untested data. This would require lots of manual work by scraping off of the SEC AAERs webpage to update the dataset up until 2024, as the current dataset only goes until 2018. Additionally, we will leverage the Compustat database to fill in the financial variables for firms from 2018-2024. Once this dataset is complete, we hope to re-run the experiment and determine any improvements and hyperparameter tunings that can be made to the models. 
+
+\subsection{Large-Language Models (LLMs)}
+We plan to leverage LLMs to give a fraud score when given an input of financial statement text data (MD\&A, earnings call transcript). This will become another feature inputted into a baseline's preliminary machine learning methods. We aim to use the LLMs and see if we can achieve performance gains by inputting our financial variables, ratios, and text data. Similarly to our machine learning approach, the model will classify a firm as either fraudulent or non-fraudulent, and then a performance analysis will be conducted to see if the results have improved or worsened or stayed the same. We hope to implement GPT-4o and LLaMA3 following a similar methodology to Chen, Kelly, Xiu [2023] \cite{b2}, and improve upon our results and be able to publish a state-of-the-art fraud detection model using an LLM approach. Outside of this project's scope, we want to incorporate both speaking tones (speech detection) and facial expressions (computer vision) to increase the robustness of the dataset even more. 
+
+
+\begin{thebibliography}{00}
+\bibitem{b1} Cecchini, M.; H. Aytug; G. J. Koehler; AND P. Pathak. “Detecting Management Fraud in Public Companies.” Management Science 56 (2010): 1146–60.
+\bibitem{b2} Chen, Yifei and Kelly, Bryan T. and Xiu, Dacheng, Expected Returns and Large Language Models (November 22, 2022). Available at SSRN: https://ssrn.com/abstract=4416687
+\bibitem{b8} Cressey, D.R. (1973). Other Peoples’ Money: A study in the social psychology of embezzlement. Glencoe: Free Press.
+\bibitem{b3} Dechow, P. M.;W. Ge; C. R. Larson; and R. G. Sloan. “Predicting Material Accounting Misstatements.”
+Contemporary Accounting Research 28 (2011): 17–82.
+\bibitem{b4} Dyck, A.; A. Morse; AND L. Zingales. “Who Blows the Whistle on Corporate Fraud?” Journal of Finance LXV (2010): 2213–53.
+\bibitem{b9} Fawcett, T. “An Introduction to ROC Analysis.” Pattern Recognition Letters 27 (2006): 861–74.
+\bibitem{b5} J. Gee, M. Button, The Financial Cost of Fraud 2019, Tech. Rep, Crowe, 2019.
+\bibitem{b6} Rakoff, J. S. “The Financial Crisis: Why Have No High-Level Executives Been Prosecuted?”
+The New York Review of Books, January 9, 2014.
+\bibitem{b7} Yang Bao, Bin Ke, Bin Li, Julia Yu, and Jie Zhang (2020). Detecting Accounting Fraud in Publicly Traded U.S. Firms Using a Machine Learning Approach. Journal of Accounting Research, 58 (1): 199-235.
+\end{thebibliography}
+
+\newpage
+\section*{Appendix}
+\begin{table}[H]
+\caption{Reported Evaluation Metrics for the Test Period 2003-08 \newline Input: 28 Financial Variables}
+\centering
+\begin{tabular}{p{2.495cm}cccc}
+\toprule
+\textbf{Method} & \textbf{AUC} & \textbf{NDCG@k} & \textbf{Sensitivity} & \textbf{Precision} \\
+\midrule
+\raggedright (1) Logit & 0.690 & 0.006 & 0.73\% & 0.85\% \\
+\raggedright (2) RUSBoost & 0.725 & 0.049 & 4.88\% & 4.48\% \\
+\raggedright (3) SVM & 0.680 & 0.016 & 1.69\% & 1.90\% \\
+\bottomrule
+\end{tabular}
+\label{tab:performance}
+\end{table}
+\begin{table}[H]
+\caption{Percentage Change From Table VII to Table IV}
+\centering
+\begin{tabular}{p{2.295cm}ccccc}
+\toprule
+\textbf{Method} & \textbf{AUC} & \textbf{NDCG@k} & \textbf{Sensitivity} & \textbf{Precision} \\
+\midrule
+\raggedright (1) Logit & -7.25\% & 350.00\% & 358.22\% & 234.71\% \\
+\raggedright (2) RUSBoost & 6.21\% & 4.08\% & 1.70\% & 13.82\% \\
+\raggedright (3) SVM & -6.18\% & 50.00\% & 80.89\% & 34.84\% \\
+
+\bottomrule
+\end{tabular}
+\end{table}
 
 \end{document}
